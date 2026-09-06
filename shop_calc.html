@@ -37,15 +37,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/db.css">
     <link rel="stylesheet" href="css/shop.css">
-    <!-- Les grilles arrivent REPLIÉES dans le HTML : replier en JS après coup ferait sauter la
-         page sous les yeux du visiteur, une fois les données chargées. Le prix, c'est que sans
-         JS le bouton ne répond pas — et les boutiques du bas deviendraient injoignables depuis
-         ce sommaire, qui est leur seul lien interne (cf. MAP.md §9). D'où ce dépliage : sans JS,
-         tout est là, comme avant. -->
-    <noscript><style>
-      .sx-grid.is-clamped > .sx-card { display: flex !important; }
-      .sx-more { display: none !important; }
-    </style></noscript>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Kingshot Toolbox","item":"https://kingshottoolbox.com/"},{"@type":"ListItem","position":2,"name":"Shops","item":"https://kingshottoolbox.com/shop_calc"}]}</script>
 </head>
 <body class="has-app-header">
@@ -75,6 +66,14 @@
         <section class="sx-section">
           <h2><span data-i18n="secEvent">Event Shops</span><span class="sx-count" data-count-event></span></h2>
           <p class="sx-section-sub" data-i18n="secEventSub">Time-limited offers: dedicated currency, capped stock and an end date.</p>
+          <!-- Bascule « Voir plus » SANS JavaScript : la case, la grille, puis le libellé.
+               Un <button> piloté en JS repliait la page APRÈS son premier affichage, d'où un
+               saut de mise en page (CLS mesuré à 0,68 sur mobile) ; et un `shop_calc.js` encore
+               en cache laissait les cartes masquées derrière un bouton inerte. Ici le repli tient
+               dans le HTML et le CSS : en place dès le premier pixel, et sans script à périmer.
+               `hidden` est le garde-fou du CSS en cache — seule la feuille qui sait replier le
+               lève. Sans elle : ni case, ni libellé, et la grille entière. -->
+          <input type="checkbox" id="more-grid-event" class="sx-more-cb" hidden>
           <div class="sx-grid is-clamped" id="grid-event">
             <a class="sx-card" href="shop/theater-shop" data-shop-slug="theater-shop">
               <span class="sx-thumb-slot"></span>
@@ -141,26 +140,28 @@
             </a>
           </div>
 
-          <!-- Révélation du reste de la catégorie. Le bouton est ÉCRIT EN DUR comme les cartes :
-               son libellé doit exister sans JS, et les deux états vivent dans le HTML pour que
-               scApplyTranslations() les traduise tous les deux d'un coup (data-en/data-fr) —
-               aucun texte fabriqué en JS, donc rien à ajouter au dictionnaire de shop-core.js.
-               C'est le CSS qui montre le bon libellé selon aria-expanded, et qui masque le
-               bouton entier quand la catégorie tient sous son plafond. -->
-          <button type="button" class="sx-more" aria-expanded="false" aria-controls="grid-event">
+          <label class="sx-more" for="more-grid-event" hidden>
             <span class="sx-more-all" data-en="Show all" data-fr="Voir plus">Show all</span>
             <span class="sx-more-less" data-en="Show less" data-fr="Voir moins">Show less</span>
-            <!-- Nom accessible : les trois boutons diraient sinon « Voir plus » à l'identique,
-                 et rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
+            <!-- Lu, jamais vu : sans lui, les trois libellés s'annoncent à l'identique.
+                 Rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
             <span class="sx-more-cat" data-en="event shops" data-fr="de boutiques d'événement">event shops</span>
             <span class="sx-more-chev" aria-hidden="true"></span>
-          </button>
+          </label>
         </section>
 
         <!-- ===== BOUTIQUES PERMANENTES ===== -->
         <section class="sx-section">
           <h2><span data-i18n="secClassic">Permanent Shops</span><span class="sx-count" data-count-classic></span></h2>
           <p class="sx-section-sub" data-i18n="secClassicSub">Always-available shops, fed by their game mode's own currency.</p>
+          <!-- Bascule « Voir plus » SANS JavaScript : la case, la grille, puis le libellé.
+               Un <button> piloté en JS repliait la page APRÈS son premier affichage, d'où un
+               saut de mise en page (CLS mesuré à 0,68 sur mobile) ; et un `shop_calc.js` encore
+               en cache laissait les cartes masquées derrière un bouton inerte. Ici le repli tient
+               dans le HTML et le CSS : en place dès le premier pixel, et sans script à périmer.
+               `hidden` est le garde-fou du CSS en cache — seule la feuille qui sait replier le
+               lève. Sans elle : ni case, ni libellé, et la grille entière. -->
+          <input type="checkbox" id="more-grid-classic" class="sx-more-cb" hidden>
           <div class="sx-grid is-clamped" id="grid-classic">
             <a class="sx-card" href="shop/arena" data-shop-slug="arena">
               <span class="sx-thumb-slot"></span>
@@ -206,26 +207,28 @@
             </a>
           </div>
 
-          <!-- Révélation du reste de la catégorie. Le bouton est ÉCRIT EN DUR comme les cartes :
-               son libellé doit exister sans JS, et les deux états vivent dans le HTML pour que
-               scApplyTranslations() les traduise tous les deux d'un coup (data-en/data-fr) —
-               aucun texte fabriqué en JS, donc rien à ajouter au dictionnaire de shop-core.js.
-               C'est le CSS qui montre le bon libellé selon aria-expanded, et qui masque le
-               bouton entier quand la catégorie tient sous son plafond. -->
-          <button type="button" class="sx-more" aria-expanded="false" aria-controls="grid-classic">
+          <label class="sx-more" for="more-grid-classic" hidden>
             <span class="sx-more-all" data-en="Show all" data-fr="Voir plus">Show all</span>
             <span class="sx-more-less" data-en="Show less" data-fr="Voir moins">Show less</span>
-            <!-- Nom accessible : les trois boutons diraient sinon « Voir plus » à l'identique,
-                 et rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
+            <!-- Lu, jamais vu : sans lui, les trois libellés s'annoncent à l'identique.
+                 Rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
             <span class="sx-more-cat" data-en="permanent shops" data-fr="de boutiques permanentes">permanent shops</span>
             <span class="sx-more-chev" aria-hidden="true"></span>
-          </button>
+          </label>
         </section>
 
         <!-- ===== COFFRES ===== -->
         <section class="sx-section">
           <h2><span data-i18n="secChest">Chests</span><span class="sx-count" data-count-chest></span></h2>
           <p class="sx-section-sub" data-i18n="secChestSub">Single-pick chests: only one item to take, so make it the most valuable one.</p>
+          <!-- Bascule « Voir plus » SANS JavaScript : la case, la grille, puis le libellé.
+               Un <button> piloté en JS repliait la page APRÈS son premier affichage, d'où un
+               saut de mise en page (CLS mesuré à 0,68 sur mobile) ; et un `shop_calc.js` encore
+               en cache laissait les cartes masquées derrière un bouton inerte. Ici le repli tient
+               dans le HTML et le CSS : en place dès le premier pixel, et sans script à périmer.
+               `hidden` est le garde-fou du CSS en cache — seule la feuille qui sait replier le
+               lève. Sans elle : ni case, ni libellé, et la grille entière. -->
+          <input type="checkbox" id="more-grid-chest" class="sx-more-cb" hidden>
           <div class="sx-grid is-clamped" id="grid-chest">
             <a class="sx-card" href="shop/gear-boost-chest" data-shop-slug="gear-boost-chest">
               <span class="sx-thumb-slot"></span>
@@ -243,20 +246,14 @@
             </a>
           </div>
 
-          <!-- Révélation du reste de la catégorie. Le bouton est ÉCRIT EN DUR comme les cartes :
-               son libellé doit exister sans JS, et les deux états vivent dans le HTML pour que
-               scApplyTranslations() les traduise tous les deux d'un coup (data-en/data-fr) —
-               aucun texte fabriqué en JS, donc rien à ajouter au dictionnaire de shop-core.js.
-               C'est le CSS qui montre le bon libellé selon aria-expanded, et qui masque le
-               bouton entier quand la catégorie tient sous son plafond. -->
-          <button type="button" class="sx-more" aria-expanded="false" aria-controls="grid-chest">
+          <label class="sx-more" for="more-grid-chest" hidden>
             <span class="sx-more-all" data-en="Show all" data-fr="Voir plus">Show all</span>
             <span class="sx-more-less" data-en="Show less" data-fr="Voir moins">Show less</span>
-            <!-- Nom accessible : les trois boutons diraient sinon « Voir plus » à l'identique,
-                 et rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
+            <!-- Lu, jamais vu : sans lui, les trois libellés s'annoncent à l'identique.
+                 Rien ne dirait lequel déplie quelle catégorie (rotor, commande vocale). -->
             <span class="sx-more-cat" data-en="chests" data-fr="de coffres">chests</span>
             <span class="sx-more-chev" aria-hidden="true"></span>
-          </button>
+          </label>
         </section>
 </div>
 
