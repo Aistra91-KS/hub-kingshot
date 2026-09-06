@@ -48,19 +48,19 @@
     <div class="control-group">
         <h3 data-i18n="settings">Settings</h3>
         <div class="control-row">
-            <label data-i18n="baseBonus">Base Research Bonus (%)</label>
+            <label for="base-bonus" data-i18n="baseBonus">Base Research Bonus (%)</label>
             <input type="number" id="base-bonus" value="75.3" step="0.1">
         </div>
         <div class="control-row">
-            <label data-i18n="chiefMinister">Chief Minister (+10%)</label>
+            <label for="chief-minister" data-i18n="chiefMinister">Chief Minister (+10%)</label>
             <input type="checkbox" id="chief-minister">
         </div>
         <div class="control-row">
-            <label data-i18n="kvkBonus">KVK Bonus (+5%)</label>
+            <label for="kvk-bonus" data-i18n="kvkBonus">KVK Bonus (+5%)</label>
             <input type="checkbox" id="kvk-bonus" checked>
         </div>
         <div class="control-row">
-            <label data-i18n="kingdomBonus">Kingdom Bonus (+10%)</label>
+            <label for="kingdom-bonus" data-i18n="kingdomBonus">Kingdom Bonus (+10%)</label>
             <input type="checkbox" id="kingdom-bonus" checked>
         </div>
         <div class="control-row">
@@ -73,7 +73,7 @@
     <div class="control-group" id="display-options-group" style="display: none;">
         <h3 data-i18n="displayOptions">Display Options</h3>
         <div class="control-row">
-            <label data-i18n="hideCompleted">Hide completed</label>
+            <label for="hide-completed" data-i18n="hideCompleted">Hide completed</label>
             <input type="checkbox" id="hide-completed">
         </div>
     </div>
@@ -95,15 +95,15 @@
         <div class="control-group" style="margin-bottom:20px;">
             <h3 data-i18n="targetTree">Target Tree</h3>
             <div class="control-row">
-                <label class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg> <span data-i18n="treeGrowthLabel">Growth</span></label>
+                <label for="tree-growth" class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg> <span data-i18n="treeGrowthLabel">Growth</span></label>
                 <input type="checkbox" id="tree-growth" checked>
             </div>
             <div class="control-row">
-                <label class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg> <span data-i18n="treeEconomyLabel">Economy</span></label>
+                <label for="tree-economy" class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg> <span data-i18n="treeEconomyLabel">Economy</span></label>
                 <input type="checkbox" id="tree-economy" checked>
             </div>
             <div class="control-row">
-                <label class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg> <span data-i18n="treeBattleLabel">Battle</span></label>
+                <label for="tree-battle" class="tree-label"><svg class="res-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg> <span data-i18n="treeBattleLabel">Battle</span></label>
                 <input type="checkbox" id="tree-battle" checked>
             </div>
         </div>
@@ -112,7 +112,7 @@
         <div class="control-group" style="margin-bottom:20px;">
             <h3 data-i18n="modeKvkBlock">KVK Mode</h3>
             <div class="control-row">
-                <label data-i18n="modeKvkLabel">Active (Limit by Accelerators)</label>
+                <label for="mode-kvk" data-i18n="modeKvkLabel">Active (Limit by Accelerators)</label>
                 <input type="checkbox" id="mode-kvk">
             </div>
         </div>
@@ -121,15 +121,15 @@
         <div class="control-group" style="margin-bottom:20px;">
             <h3 data-i18n="accelerators">Accelerators</h3>
             <div class="control-row">
-                <label data-i18n="days">Days (d)</label>
+                <label for="acc-days" data-i18n="days">Days (d)</label>
                 <input type="number" id="acc-days" value="1" min="0">
             </div>
             <div class="control-row">
-                <label data-i18n="hours">Hours (h)</label>
+                <label for="acc-hours" data-i18n="hours">Hours (h)</label>
                 <input type="number" id="acc-hours" value="16" min="0">
             </div>
             <div class="control-row">
-                <label data-i18n="minutes">Minutes (m)</label>
+                <label for="acc-minutes" data-i18n="minutes">Minutes (m)</label>
                 <input type="number" id="acc-minutes" value="3" min="0">
             </div>
             <div class="control-row">

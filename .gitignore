@@ -1,3 +1,7 @@
 # Sortie de compilation Python du générateur de pages (tools/) — jamais servie, jamais commitée.
 __pycache__/
 *.pyc
+
+# Dépendances npm installées ponctuellement pour les tests navigateur (Playwright).
+# Jamais commitées : le site est statique et n'a aucune dépendance d'exécution.
+node_modules/

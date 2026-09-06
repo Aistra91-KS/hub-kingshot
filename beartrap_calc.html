@@ -112,15 +112,15 @@
         <div class="control-group">
             <h3 data-i18n="grpTroops" style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-muted);">My Troops (T10/T11...)</h3>
             <div class="control-row">
-                <label data-i18n="lblInf">Infantry 🛡️</label>
+                <label for="troop-inf" data-i18n="lblInf">Infantry 🛡️</label>
                 <input type="text" id="troop-inf" class="formatted-number" value="0">
             </div>
             <div class="control-row">
-                <label data-i18n="lblCav">Cavalry 🐎</label>
+                <label for="troop-cav" data-i18n="lblCav">Cavalry 🐎</label>
                 <input type="text" id="troop-cav" class="formatted-number" value="0">
             </div>
             <div class="control-row">
-                <label data-i18n="lblArc">Lancers 🏹</label>
+                <label for="troop-arc" data-i18n="lblArc">Lancers 🏹</label>
                 <input type="text" id="troop-arc" class="formatted-number" value="0">
             </div>
         </div>
@@ -129,11 +129,11 @@
         <div class="control-group">
             <h3 data-i18n="grpCap" style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-muted);">My Capacity</h3>
             <div class="control-row">
-                <label data-i18n="lblBase">Base Capacity i</label>
+                <label for="cap-base" data-i18n="lblBase">Base Capacity i</label>
                 <input type="text" id="cap-base" class="formatted-number" value="120 000">
             </div>
             <div class="control-row">
-                <label data-i18n="lblExp">Expert Bonus i</label>
+                <label for="cap-expert" data-i18n="lblExp">Expert Bonus i</label>
                 <input type="text" id="cap-expert" class="formatted-number" value="0">
             </div>
             <div class="link-row">
@@ -141,7 +141,7 @@
                 <button type="button" id="expert-sync-btn" class="link-sync" title="Resynchroniser">↺</button>
             </div>
             <div class="control-row">
-                <label data-i18n="lblAni">Animal Bonus i</label>
+                <label for="cap-animal" data-i18n="lblAni">Animal Bonus i</label>
                 <input type="text" id="cap-animal" class="formatted-number" value="0">
             </div>
             <div class="link-row">
@@ -149,7 +149,7 @@
                 <button type="button" id="animal-sync-btn" class="link-sync" title="Resynchroniser">↺</button>
             </div>
             <div class="control-row">
-                <label data-i18n="lblMaxM">Max Marches</label>
+                <label for="marches-count" data-i18n="lblMaxM">Max Marches</label>
                 <input type="text" id="marches-count" class="formatted-number" value="5">
             </div>
         </div>
@@ -158,14 +158,14 @@
         <div class="control-group">
             <h3 data-i18n="grpOrg" style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-muted);">Organization</h3>
             <div class="control-row">
-                <label data-i18n="lblRole">Role</label>
+                <label for="player-role" data-i18n="lblRole">Role</label>
                 <select id="player-role" class="table-select" style="width: 120px;">
                     <option value="participant">Participant</option>
                     <option value="organizer">Organisateur</option>
                 </select>
             </div>
             <div class="control-row" style="margin-top: 10px;">
-                <label data-i18n="lblGen">Server Generation i</label>
+                <label for="server-generation" data-i18n="lblGen">Server Generation i</label>
                 <select id="server-generation" class="table-select" style="width: 120px;">
                     <option value="1">Génération 1</option>
                     <option value="2">Génération 2</option>
@@ -178,7 +178,7 @@
             </div>
             <div class="control-row">
                 <!-- NOUVEAU : Ajout du placeholder dynamique -->
-                <label data-i18n="lblLimit" title="Limite imposée par l'alliance">Sending Limit i</label>
+                <label for="alliance-limit" data-i18n="lblLimit" title="Limite imposée par l'alliance">Sending Limit i</label>
                 <input type="text" id="alliance-limit" class="formatted-number" data-i18n-placeholder="Unlimited" placeholder="Unlimited">
             </div>
             <button type="button" id="btn-joiner-auth" class="btn-add" style="margin-top: 12px;" data-i18n="joinerAuthBtn">🛡️ Allowed heroes</button>
@@ -188,7 +188,7 @@
         <div class="control-group">
             <h3 data-i18n="grpOpt" style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-muted);">Optimization Mode</h3>
             <div class="control-row">
-                <label data-i18n="lblMode">Mode</label>
+                <label for="optim-mode" data-i18n="lblMode">Mode</label>
                 <select id="optim-mode" class="table-select" style="width: 120px;">
                     <option value="threshold">Seuils Mini</option>
                     <option value="formula">Formule (Bientôt)</option>
@@ -196,11 +196,11 @@
             </div>
             <div id="threshold-inputs">
                 <div class="control-row" style="margin-top: 10px;">
-                    <label data-i18n="lblMinInf">Min Infantry (%) i</label>
+                    <label for="min-inf-percent" data-i18n="lblMinInf">Min Infantry (%) i</label>
                     <input type="text" id="min-inf-percent" class="formatted-number" value="10">
                 </div>
                 <div class="control-row" style="margin-top: 10px;">
-                    <label data-i18n="lblMinCav">Min Cavalry (%) i</label>
+                    <label for="min-cav-percent" data-i18n="lblMinCav">Min Cavalry (%) i</label>
                     <input type="text" id="min-cav-percent" class="formatted-number" value="10">
                 </div>
             </div>
@@ -235,7 +235,7 @@
             <h3 data-i18n="modalTitle" style="margin-top: 0; color: var(--accent);">Custom March</h3>
             
             <div class="control-row" style="margin-bottom: 15px;">
-                <label data-i18n="modalName">March Name</label>
+                <label for="cm-name" data-i18n="modalName">March Name</label>
                 <input type="text" id="cm-name" style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-light); padding: 6px; border-radius: 4px; width: 140px; outline: none;" placeholder="Ex: Rally Zeus">
             </div>
 
