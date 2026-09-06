@@ -37,11 +37,15 @@ function spRenderHero(){
     facts=`<span class="sx-fact">${scT('currency')} : <b>${scEscAttr(scResName(shop,lang))}</b></span>`+facts;
   }
   if(spIsEvent() && shop.endsAt){
-    if(scIsEnded(shop)){
-      facts+=`<span class="sx-fact ended"><b>${scT('ended')}</b></span>`;
-    } else {
-      facts+=`<span class="sx-fact ${scIsUrgent(shop)?'urgent':'live'}">${scT('endsIn')} : <b data-ends-at="${scEscAttr(shop.endsAt)}">${scTimeLeftTxt(shop.endsAt)}</b></span>`;
-    }
+    // UNE seule pastille, qui se suffit à elle-même : le compteur reste branché même
+    // une fois l'échéance passée, c'est ce qui permet à une page laissée ouverte de
+    // basculer d'elle-même (libellé masqué + classe réécrite par scStartCountdowns).
+    // Deux markups distincts — un « en cours », un « terminé » — laissaient le second
+    // inatteignable sans rechargement, et la page mentait le temps d'un onglet oublié.
+    const ended=scIsEnded(shop);
+    facts+=`<span class="sx-fact ${ended?'ended':scIsUrgent(shop)?'urgent':'live'}" data-ends-state>`
+         + `<span data-ends-label${ended?' hidden':''}>${scT('endsIn')} : </span>`
+         + `<b data-ends-at="${scEscAttr(shop.endsAt)}" data-ends-full>${scTimeLeftTxt(shop.endsAt, true)}</b></span>`;
   } else if(!spIsChest()){
     facts+=`<span class="sx-fact">${scT('permanent')}</span>`;
   }
@@ -573,4 +577,9 @@ function spNotifyEvent(){ if(window.ShopEvent) ShopEvent.refresh(); }
   if (window.HelpSystem) HelpSystem.init(spHelpCfg);
 
   window.addEventListener('langChanged', spRenderAll);
+  // Une échéance vient de basculer sur une page laissée ouverte : le bandeau d'archive et
+  // la colonne « Obtenable » sont périmés autant que le compteur, et la section événement
+  // repart avec (spRenderAll notifie shop-event.js). Même reconstruction qu'un changement
+  // de langue — elle n'a lieu qu'au basculement, pas à chaque minute.
+  window.addEventListener('endsStateChanged', spRenderAll);
 })();
