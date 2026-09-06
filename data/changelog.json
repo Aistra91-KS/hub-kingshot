@@ -2,26 +2,71 @@
   "_meta": {
     "note": "Historique des mises à jour du site, rendu par changelog.html (js/changelog.js). Entrées les plus récentes EN PREMIER. Les entrées antérieures au 17/08/2026 ont été reconstituées a posteriori à partir des annonces Discord (.github/news/announce.md dans l'historique git) et des commits.",
     "types": "new = nouveauté · improved = amélioration · fixed = correctif",
-    "howto": "Ajouter une version = 1 objet en tête de releases[] + incrémenter SITE.version dans js/site-config.js (même numéro). href est facultatif : chemin relatif à la racine du site."
+    "howto": "Ajouter une version = 1 objet en tête de releases[] + incrémenter SITE.version dans js/site-config.js (même numéro). href est facultatif : chemin relatif à la racine du site.",
+    "versioning": "MAJEURE.FONCTIONNALITE.CORRECTIF. Le 2e chiffre monte pour une FONCTIONNALITÉ : nouvel outil, nouvelle page, refonte d'une section, gros changement de structure. Le 3e monte pour tout le reste : ajout de contenu (une boutique de plus), petite amélioration, correctif. Après la v1.13.1, une boutique ajoutée donne la v1.13.2, un nouvel outil donne la v1.14.0. Les versions 0.x sont antérieures à cette règle et gardent leur numérotation d'origine.",
+    "schema": "release = {version, date, changes[]} — PAS de titre de version : l'en-tête ne porte que le numéro et la date. change = {type, title{EN,FR}, text{EN,FR}, href?, linkLabel?{EN,FR}} : chaque modification porte SON titre, pour qu'elle se lise seule. `title` est optionnel — les versions 0.x n'en ont pas et s'affichent en description seule."
   },
   "releases": [
     {
-      "version": "1.13",
+      "version": "1.13.2",
+      "date": "2026-09-06",
+      "changes": [
+        {
+          "type": "improved",
+          "title": {
+            "EN": "Shop categories open on two rows",
+            "FR": "Les catégories de boutiques s'ouvrent sur deux lignes"
+          },
+          "text": {
+            "EN": "The shops index no longer lays every shop out at once. Each category opens on two rows and keeps the rest behind a Show all button that folds it back again. How many fit in two rows follows the width of your window, and a category that already fits gets no button at all.",
+            "FR": "Le sommaire des boutiques n'étale plus tout d'un coup. Chaque catégorie s'ouvre sur deux lignes et garde le reste derrière un bouton « Voir plus », qui les replie ensuite. Le nombre qui tient en deux lignes suit la largeur de ta fenêtre, et une catégorie qui tient déjà entièrement n'a pas de bouton."
+          },
+          "href": "shop_calc"
+        },
+        {
+          "type": "improved",
+          "title": {
+            "EN": "Every update now has its own title",
+            "FR": "Chaque mise à jour a désormais son propre titre"
+          },
+          "text": {
+            "EN": "This page used to give one catchy title to a whole version, which said nothing about half of what the version contained. Each change now carries its own title, and a version header shows only its number and its date. Version numbers also gained a third digit: it moves for a shop added or a fix, while the second one is kept for a new tool or a page rebuilt.",
+            "FR": "Cette page donnait un titre accrocheur à toute une version, qui ne disait rien de la moitié de ce qu'elle contenait. Chaque modification porte maintenant son titre, et l'en-tête d'une version n'affiche plus que son numéro et sa date. Les numéros gagnent aussi un troisième chiffre : il bouge pour une boutique ajoutée ou un correctif, le deuxième restant réservé à un nouvel outil ou à une page refondue."
+          },
+          "href": "changelog"
+        }
+      ]
+    },
+    {
+      "version": "1.13.1",
       "date": "2026-08-30",
-      "title": {
-        "EN": "Tell me what is wrong, from any page",
-        "FR": "Dis-moi ce qui cloche, depuis n'importe quelle page"
-      },
+      "aliases": [
+        "1.13"
+      ],
       "changes": [
         {
           "type": "new",
+          "title": {
+            "EN": "The Theater Shop and its three price tiers",
+            "FR": "Le Magasin du Théâtre et ses trois paliers de prix"
+          },
           "text": {
             "EN": "The Theater Shop, the store of the Fantasy Theater event, now has its page. It is the first shop that sells the same offer three times over at three rising prices, so a new Tier column marks each line with its price step - gold, purple, blue, like the card colours in game. The table still ranks everything by value, which is what makes the ladder readable: Mithril at tier 2 is still a better buy than TrueGold at tier 1. The page also has a French address of its own, a first on the site.",
             "FR": "Le Magasin du Théâtre, la boutique de l'événement Théâtre Fantastique, a sa page. C'est la première boutique qui vend la même offre trois fois à trois prix croissants : une colonne « Palier » marque donc chaque ligne de son cran de prix — or, violet, bleu, comme les couleurs des cartes en jeu. Le tableau continue de tout classer par rentabilité, et c'est ce qui rend l'échelle lisible : le Mithril au palier 2 reste un meilleur achat que l'Or Véritable au palier 1. La page a aussi sa propre adresse française, une première sur le site."
           }
-        },
+        }
+      ]
+    },
+    {
+      "version": "1.13.0",
+      "date": "2026-08-30",
+      "changes": [
         {
           "type": "new",
+          "title": {
+            "EN": "A feedback button on every page",
+            "FR": "Un bouton « Un retour ? » sur chaque page"
+          },
           "text": {
             "EN": "A Feedback button now sits in the header of every page, and in the side menu on phones. It opens a short form: say whether it is a bug, a wrong value, an idea or something else, write your message, leave your in-game name if you want a follow-up, and send. The form tells you exactly what travels with it - the page you were on, your language and the site version, nothing more - and confirms on screen once the message has really gone through. No account, no email address to give.",
             "FR": "Un bouton « Un retour ? » est apparu dans l'en-tête de chaque page, et dans le menu latéral sur téléphone. Il ouvre un formulaire court : dis s'il s'agit d'un bug, d'une valeur erronée, d'une idée ou d'autre chose, écris ton message, laisse ton pseudo en jeu si tu veux un suivi, et envoie. Le formulaire annonce exactement ce qui part avec lui — la page où tu étais, ta langue et la version du site, rien de plus — et confirme à l'écran une fois le message vraiment arrivé. Aucun compte, aucune adresse mail à donner."
@@ -30,15 +75,18 @@
       ]
     },
     {
-      "version": "1.12",
+      "version": "1.12.0",
       "date": "2026-08-29",
-      "title": {
-        "EN": "The Blizzard Shop joins the shops",
-        "FR": "Le Magasin du Blizzard rejoint les boutiques"
-      },
+      "aliases": [
+        "1.12"
+      ],
       "changes": [
         {
           "type": "new",
+          "title": {
+            "EN": "The Blizzard Shop",
+            "FR": "Le Magasin du Blizzard"
+          },
           "text": {
             "EN": "The Blizzard Shop joined the Shops section, with its seven items, their price in Brawl Emblems and the stock left on each one, plus the countdown to closing time. Six of the seven give back exactly the same value per emblem; the seventh, the 100 Enhancement XP Component, gives half as much, so it is the one line to leave alone.",
             "FR": "Le Magasin du Blizzard rejoint la section Boutiques, avec ses sept objets, leur prix en Emblèmes de Duel et le stock restant sur chacun, plus le compte à rebours jusqu'à la fermeture. Six des sept rapportent exactement la même valeur par emblème ; le septième, les 100 Points d'EXP d'Amélioration, en rapporte deux fois moins — c'est la seule ligne à laisser de côté."
@@ -52,46 +100,18 @@
       ]
     },
     {
-      "version": "1.11",
+      "version": "1.11.1",
       "date": "2026-08-28",
-      "title": {
-        "EN": "Was that event worth your money?",
-        "FR": "Cet événement valait-il ton argent ?"
-      },
+      "aliases": [
+        "1.11"
+      ],
       "changes": [
         {
-          "type": "new",
-          "text": {
-            "EN": "Two event shops now tell you what the whole event gave you back. Tick the packs you bought on each day - or nothing at all if you play for free - and the page adds up everything the event hands out: the daily missions, the free packs, the free tracks, the milestones and the contents of the packs themselves. It compares that to what you actually paid and shows a single percentage: 100% means you got your money back, and the colour runs from red to green as the deal gets better.",
-            "FR": "Deux boutiques d'événement te disent maintenant ce que l'événement entier t'a rapporté. Coche les packs achetés chaque jour - ou rien du tout si tu joues gratuitement - et la page additionne tout ce que l'événement distribue : les missions quotidiennes, les packs gratuits, les pistes gratuites, les paliers et le contenu des packs eux-mêmes. Elle compare le tout à ce que tu as réellement payé et affiche un seul pourcentage : 100 %, c'est ta mise récupérée, et la couleur va du rouge au vert à mesure que l'affaire s'améliore."
-          },
-          "href": "shop/adventure-stall",
-          "linkLabel": {
-            "EN": "Adventure Stall",
-            "FR": "Stand d'Aventure"
-          }
-        },
-        {
-          "type": "new",
-          "text": {
-            "EN": "The event currency you earn is counted too. One button drops it into the shop table below, so the items you pick there feed straight back into the value you recovered.",
-            "FR": "La monnaie d'événement que tu gagnes est comptée elle aussi. Un bouton la reporte dans le tableau de la boutique en dessous, et les objets que tu y choisis reviennent aussitôt nourrir la valeur récupérée."
-          },
-          "href": "shop/dragons-caravan",
-          "linkLabel": {
-            "EN": "Dragon's Caravan",
-            "FR": "Caravane du Dragon"
-          }
-        },
-        {
-          "type": "new",
-          "text": {
-            "EN": "A breakdown lists every reward with its total in gems and in real money, and says where each quantity comes from - the missions, a pass, a milestone or a given pack. Untick anything you don't care about and it leaves the total, and the percentage, at once. Your answers are kept on your device, per event and per profile.",
-            "FR": "Un détail liste chaque récompense avec son total en gemmes et en argent réel, et indique d'où vient chaque quantité - les missions, un pass, un palier ou tel pack. Décoche ce qui ne t'intéresse pas : l'objet sort aussitôt du total, et du pourcentage. Tes réponses restent sur ton appareil, par événement et par profil."
-          }
-        },
-        {
           "type": "improved",
+          "title": {
+            "EN": "Real-money prices redone on 59 packs",
+            "FR": "Prix en argent réel refaits sur 59 packs"
+          },
           "text": {
             "EN": "The real-money prices come from a new survey: 59 paid packs instead of 33. Three items turn out to be handed out in much bigger amounts than before, so they now cost far less per unit - Gilded Threads and Satin especially.",
             "FR": "Les prix en argent réel viennent d'un nouveau relevé : 59 packs payants au lieu de 33. Trois objets se révèlent distribués en bien plus grande quantité qu'avant, et coûtent donc bien moins cher à l'unité - les Fils Dorés et le Satin en particulier."
@@ -105,35 +125,67 @@
       ]
     },
     {
-      "version": "1.1",
-      "date": "2026-08-27",
-      "title": {
-        "EN": "What the shops really cost, in euros",
-        "FR": "Ce que les boutiques coûtent vraiment, en euros"
-      },
+      "version": "1.11.0",
+      "date": "2026-08-28",
       "changes": [
         {
           "type": "new",
-          "text": {
-            "EN": "Every shop page now offers a second reading. Two pills at the top switch between the usual gem value and what the items really cost in real money, worked out from the paid packs they appear in. The two readings never mix: nothing is converted from one to the other, and no gem-to-euro rate is ever worked out. Prices show in euros or dollars, as you prefer.",
-            "FR": "Chaque page boutique propose désormais une seconde lecture. Deux pastilles en haut basculent entre la valeur en gemmes habituelle et ce que les objets coûtent vraiment en argent réel, calculé depuis les packs payants où ils apparaissent. Les deux lectures ne se mélangent jamais : rien n'est converti de l'une à l'autre, et aucun taux de change gemme/euro n'est calculé. Les prix s'affichent en euros ou en dollars, au choix."
+          "title": {
+            "EN": "What an event gave you back, in percent",
+            "FR": "Ce qu'un événement t'a rendu, en pourcentage"
           },
-          "href": "shop_calc"
-        },
-        {
-          "type": "new",
           "text": {
-            "EN": "A new page lists the real-money price of every item that a paid pack can put a price on, along with the pack each price comes from - so any figure that looks wrong can be traced back to its source.",
-            "FR": "Une nouvelle page liste le prix en argent réel de chaque objet qu'un pack payant permet de chiffrer, avec le pack d'où vient chaque prix — pour qu'un chiffre qui paraît faux puisse être remonté à sa source."
+            "EN": "Two event shops now tell you what the whole event gave you back. Tick the packs you bought on each day - or nothing at all if you play for free - and the page adds up everything the event hands out: the daily missions, the free packs, the free tracks, the milestones and the contents of the packs themselves. It compares that to what you actually paid and shows a single percentage: 100% means you got your money back, and the colour runs from red to green as the deal gets better.",
+            "FR": "Deux boutiques d'événement te disent maintenant ce que l'événement entier t'a rapporté. Coche les packs achetés chaque jour - ou rien du tout si tu joues gratuitement - et la page additionne tout ce que l'événement distribue : les missions quotidiennes, les packs gratuits, les pistes gratuites, les paliers et le contenu des packs eux-mêmes. Elle compare le tout à ce que tu as réellement payé et affiche un seul pourcentage : 100 %, c'est ta mise récupérée, et la couleur va du rouge au vert à mesure que l'affaire s'améliore."
           },
-          "href": "shop/items-euro",
+          "href": "shop/adventure-stall",
           "linkLabel": {
-            "EN": "Real-money item values",
-            "FR": "Prix réel des objets"
+            "EN": "Adventure Stall",
+            "FR": "Stand d'Aventure"
           }
         },
         {
           "type": "new",
+          "title": {
+            "EN": "Event currency counted in the total",
+            "FR": "La monnaie d'événement comptée dans le total"
+          },
+          "text": {
+            "EN": "The event currency you earn is counted too. One button drops it into the shop table below, so the items you pick there feed straight back into the value you recovered.",
+            "FR": "La monnaie d'événement que tu gagnes est comptée elle aussi. Un bouton la reporte dans le tableau de la boutique en dessous, et les objets que tu y choisis reviennent aussitôt nourrir la valeur récupérée."
+          },
+          "href": "shop/dragons-caravan",
+          "linkLabel": {
+            "EN": "Dragon's Caravan",
+            "FR": "Caravane du Dragon"
+          }
+        },
+        {
+          "type": "new",
+          "title": {
+            "EN": "Every reward broken down, and untickable",
+            "FR": "Chaque récompense détaillée, et décochable"
+          },
+          "text": {
+            "EN": "A breakdown lists every reward with its total in gems and in real money, and says where each quantity comes from - the missions, a pass, a milestone or a given pack. Untick anything you don't care about and it leaves the total, and the percentage, at once. Your answers are kept on your device, per event and per profile.",
+            "FR": "Un détail liste chaque récompense avec son total en gemmes et en argent réel, et indique d'où vient chaque quantité - les missions, un pass, un palier ou tel pack. Décoche ce qui ne t'intéresse pas : l'objet sort aussitôt du total, et du pourcentage. Tes réponses restent sur ton appareil, par événement et par profil."
+          }
+        }
+      ]
+    },
+    {
+      "version": "1.1.1",
+      "date": "2026-08-27",
+      "aliases": [
+        "1.1"
+      ],
+      "changes": [
+        {
+          "type": "new",
+          "title": {
+            "EN": "The Flamedragon Tyrant Prediction Shop",
+            "FR": "Le Magasin de Pronostique du Tyran"
+          },
           "text": {
             "EN": "The Flamedragon Tyrant Prediction Shop joined the Shops section, with its nine items, their Dragonclaw Mark price and their stock. Six of the nine are priced at exactly the same rate, so the two that are not are where the marks actually go furthest.",
             "FR": "Le Magasin de Pronostique du Tyran rejoint la section Boutiques, avec ses neuf objets, leur prix en Marques Draconiques et leur stock. Six des neuf sont au même tarif : les deux exceptions sont donc là où les marques rapportent vraiment le plus."
@@ -146,6 +198,10 @@
         },
         {
           "type": "improved",
+          "title": {
+            "EN": "No more duplicates on the best-deals podium",
+            "FR": "Plus de doublon sur le podium des meilleures affaires"
+          },
           "text": {
             "EN": "The best-deals podium no longer shows the same item twice when a shop lists it on several lines.",
             "FR": "Le podium des meilleures affaires n'affiche plus deux fois le même objet quand une boutique le propose sur plusieurs lignes."
@@ -153,6 +209,10 @@
         },
         {
           "type": "improved",
+          "title": {
+            "EN": "Research bonus typed as a percentage",
+            "FR": "Le bonus de Recherches se saisit en pourcentage"
+          },
           "text": {
             "EN": "On the Research planner, the bonus is now typed as a percentage, like the other planners.",
             "FR": "Sur le planificateur de Recherches, le bonus se saisit désormais en pourcentage, comme sur les autres planificateurs."
@@ -162,23 +222,70 @@
       ]
     },
     {
-      "version": "1.0",
-      "date": "2026-08-23",
-      "title": {
-        "EN": "The toolbox has its own address",
-        "FR": "La boîte à outils a sa propre adresse"
-      },
+      "version": "1.1.0",
+      "date": "2026-08-27",
       "changes": [
         {
           "type": "new",
+          "title": {
+            "EN": "Every shop priced in real money too",
+            "FR": "Chaque boutique chiffrée aussi en argent réel"
+          },
           "text": {
-            "EN": "Two new event shops joined the Shops section: Dragon's Caravan and Adventure Stall. Each one lists every item with its cost, what it is worth in gems and how much stock is left, so you can see straight away what deserves your currency before the event ends.",
-            "FR": "Deux nouvelles boutiques d'événement rejoignent la section Boutiques : la Caravane du Dragon et le Stand d'Aventure. Chacune liste tous les objets avec leur coût, leur valeur en gemmes et le stock restant, pour voir tout de suite ce qui mérite ta monnaie avant la fin de l'événement."
+            "EN": "Every shop page now offers a second reading. Two pills at the top switch between the usual gem value and what the items really cost in real money, worked out from the paid packs they appear in. The two readings never mix: nothing is converted from one to the other, and no gem-to-euro rate is ever worked out. Prices show in euros or dollars, as you prefer.",
+            "FR": "Chaque page boutique propose désormais une seconde lecture. Deux pastilles en haut basculent entre la valeur en gemmes habituelle et ce que les objets coûtent vraiment en argent réel, calculé depuis les packs payants où ils apparaissent. Les deux lectures ne se mélangent jamais : rien n'est converti de l'une à l'autre, et aucun taux de change gemme/euro n'est calculé. Les prix s'affichent en euros ou en dollars, au choix."
           },
           "href": "shop_calc"
         },
         {
           "type": "new",
+          "title": {
+            "EN": "A page for real-money item values",
+            "FR": "Une page pour le prix réel des objets"
+          },
+          "text": {
+            "EN": "A new page lists the real-money price of every item that a paid pack can put a price on, along with the pack each price comes from - so any figure that looks wrong can be traced back to its source.",
+            "FR": "Une nouvelle page liste le prix en argent réel de chaque objet qu'un pack payant permet de chiffrer, avec le pack d'où vient chaque prix — pour qu'un chiffre qui paraît faux puisse être remonté à sa source."
+          },
+          "href": "shop/items-euro",
+          "linkLabel": {
+            "EN": "Real-money item values",
+            "FR": "Prix réel des objets"
+          }
+        }
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-08-23",
+      "aliases": [
+        "1.0"
+      ],
+      "changes": [
+        {
+          "type": "new",
+          "title": {
+            "EN": "Dragon's Caravan and Adventure Stall",
+            "FR": "La Caravane du Dragon et le Stand d'Aventure"
+          },
+          "text": {
+            "EN": "Two new event shops joined the Shops section: Dragon's Caravan and Adventure Stall. Each one lists every item with its cost, what it is worth in gems and how much stock is left, so you can see straight away what deserves your currency before the event ends.",
+            "FR": "Deux nouvelles boutiques d'événement rejoignent la section Boutiques : la Caravane du Dragon et le Stand d'Aventure. Chacune liste tous les objets avec leur coût, leur valeur en gemmes et le stock restant, pour voir tout de suite ce qui mérite ta monnaie avant la fin de l'événement."
+          },
+          "href": "shop_calc"
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-08-23",
+      "changes": [
+        {
+          "type": "new",
+          "title": {
+            "EN": "The toolbox has its own address",
+            "FR": "La boîte à outils a son adresse"
+          },
           "text": {
             "EN": "The site has moved to kingshottoolbox.com. Old links keep working and send you to the new address automatically, so nothing breaks — but pinned links and bookmarks are worth updating.",
             "FR": "Le site a déménagé sur kingshottoolbox.com. Les anciens liens continuent de fonctionner et redirigent tout seuls vers la nouvelle adresse : rien ne casse, mais les liens épinglés et les favoris méritent une mise à jour."
@@ -186,6 +293,10 @@
         },
         {
           "type": "new",
+          "title": {
+            "EN": "A real preview card when you share a link",
+            "FR": "Une vraie vignette quand tu partages un lien"
+          },
           "text": {
             "EN": "Sharing a link to the toolbox now shows a proper preview card with an image, instead of a bare line of text.",
             "FR": "Partager un lien vers la boîte à outils affiche désormais une vraie vignette avec image, au lieu d'une ligne de texte nue."
@@ -193,6 +304,10 @@
         },
         {
           "type": "improved",
+          "title": {
+            "EN": "A site icon, and clearer page descriptions",
+            "FR": "Une icône de site, et des descriptions de page plus claires"
+          },
           "text": {
             "EN": "The site icon now shows up in your browser tab, and every page states more clearly what it does — which is what search engines display.",
             "FR": "L'icône du site apparaît maintenant dans l'onglet du navigateur, et chaque page annonce plus clairement ce qu'elle fait — c'est ce qu'affichent les moteurs de recherche."
@@ -200,6 +315,10 @@
         },
         {
           "type": "new",
+          "title": {
+            "EN": "A proper page for dead links",
+            "FR": "Une vraie page pour les liens morts"
+          },
           "text": {
             "EN": "A proper error page replaces GitHub's default one when a link is dead, with shortcuts back to the home page and the main tools.",
             "FR": "Une vraie page d'erreur remplace celle de GitHub quand un lien est mort, avec des raccourcis vers l'accueil et les principaux outils."
@@ -211,10 +330,6 @@
     {
       "version": "0.10",
       "date": "2026-08-22",
-      "title": {
-        "EN": "Tick your researches in one click",
-        "FR": "Coche tes recherches en un clic"
-      },
       "changes": [
         {
           "type": "new",
@@ -237,10 +352,6 @@
     {
       "version": "0.9",
       "date": "2026-08-17",
-      "title": {
-        "EN": "A footer to find your way around",
-        "FR": "Un pied de page pour s'y retrouver"
-      },
       "changes": [
         {
           "type": "new",
@@ -278,10 +389,6 @@
     {
       "version": "0.8",
       "date": "2026-08-15",
-      "title": {
-        "EN": "Exclusive gear for the newest heroes",
-        "FR": "Les équipements exclusifs des derniers héros"
-      },
       "changes": [
         {
           "type": "new",
@@ -296,10 +403,6 @@
     {
       "version": "0.7",
       "date": "2026-08-10",
-      "title": {
-        "EN": "Your plan applies in one click",
-        "FR": "Ton plan s'applique en un clic"
-      },
       "changes": [
         {
           "type": "new",
@@ -346,10 +449,6 @@
     {
       "version": "0.6",
       "date": "2026-08-07",
-      "title": {
-        "EN": "Every shop gets its own page",
-        "FR": "Chaque boutique a désormais sa page"
-      },
       "changes": [
         {
           "type": "new",
@@ -397,10 +496,6 @@
     {
       "version": "0.5",
       "date": "2026-08-05",
-      "title": {
-        "EN": "TrueGold: server tier",
-        "FR": "TrueGold : palier de serveur"
-      },
       "changes": [
         {
           "type": "new",
@@ -422,10 +517,6 @@
     {
       "version": "0.4",
       "date": "2026-08-04",
-      "title": {
-        "EN": "Polar Shop",
-        "FR": "Magasin Polaire"
-      },
       "changes": [
         {
           "type": "new",
@@ -451,10 +542,6 @@
     {
       "version": "0.3",
       "date": "2026-08-03",
-      "title": {
-        "EN": "The TrueGold plan in the order you actually build",
-        "FR": "Le plan TrueGold dans l'ordre où tu construis vraiment"
-      },
       "changes": [
         {
           "type": "improved",
@@ -484,10 +571,6 @@
     {
       "version": "0.2",
       "date": "2026-07-29",
-      "title": {
-        "EN": "Several accounts, several profiles",
-        "FR": "Plusieurs comptes, plusieurs profils"
-      },
       "changes": [
         {
           "type": "new",
@@ -523,10 +606,6 @@
     {
       "version": "0.1",
       "date": "2026-07-28",
-      "title": {
-        "EN": "War Academy: a fairer KvK breakdown",
-        "FR": "Académie de Guerre : un bilan KvK plus juste"
-      },
       "changes": [
         {
           "type": "improved",
@@ -563,10 +642,6 @@
     {
       "version": "0.01",
       "date": "2026-07-23",
-      "title": {
-        "EN": "Experts & Pets databases",
-        "FR": "Bases de données Experts & Familiers"
-      },
       "changes": [
         {
           "type": "new",

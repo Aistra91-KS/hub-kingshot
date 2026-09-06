@@ -1,7 +1,14 @@
 // ============================================================
 //  PAGE NOUVEAUTÉS — rendu de data/changelog.json
-//  Une entrée = une version (numéro + date + titre + changements).
+//  Une entrée = une version : numéro + date, et rien d'autre. Le titre accrocheur
+//  qui coiffait toute une version a disparu — il mentait dès que la version
+//  contenait deux choses sans rapport (la v1.13 annonçait le formulaire de retour
+//  et livrait aussi le Magasin du Théâtre). C'est donc CHAQUE modification qui
+//  porte son titre, et qui se lit seule.
 //  Le JSON liste les versions de la PLUS RÉCENTE à la plus ancienne.
+//
+//  Titres de section : h2 = la version, h3 = une modification. La page est indexée,
+//  son plan doit se tenir tout seul.
 //
 //  Ancres : chaque version reçoit l'id « v1-9 » (le point devient un -),
 //  pour pouvoir pointer une version précise depuis une annonce.
@@ -76,19 +83,33 @@ function clRender() {
       const link = c.href
         ? ` <a class="cl-link" href="${clEsc(c.href)}">${clEsc(clLinkLabel(c))} →</a>`
         : '';
+      // `title` est optionnel : les versions 0.x sont antérieures à ce format et
+      // n'en ont pas. Sans titre, la modification s'affiche en description seule,
+      // exactement comme avant — pas de ligne vide, pas de titre inventé.
+      const name = clTxt(c.title);
       return `<li class="cl-change">
           <span class="cl-tag is-${type}">${clEsc(clT(type))}</span>
-          <span class="cl-text">${clEsc(clTxt(c.text))}${link}</span>
+          <div class="cl-body">
+            ${name ? `<h3 class="cl-name">${clEsc(name)}</h3>` : ''}
+            <p class="cl-text">${clEsc(clTxt(c.text))}${link}</p>
+          </div>
         </li>`;
     }).join('');
 
+    // Ancres d'un numéro ABANDONNÉ. Les annonces Discord déjà postées pointent vers
+    // `#v1-13` ; la renumérotation l'a fait disparaître, et le lien retombait en haut
+    // de page sans rien dire. Une ancre vide le rattrape sur la version qui a repris
+    // son contenu. Elles ne servent qu'au passé : une version neuve n'en a pas.
+    const aliases = (rel.aliases || []).map(a =>
+      `<span class="cl-alias" id="v${clEsc(String(a).replace(/\./g, '-'))}" aria-hidden="true"></span>`).join('');
+
     return `<li class="cl-item" id="v${clEsc(String(rel.version).replace(/\./g, '-'))}">
-        <div class="cl-head">
+        ${aliases}
+        <h2 class="cl-head">
           <span class="cl-ver">v${clEsc(rel.version)}</span>
           <time class="cl-date" datetime="${clEsc(rel.date)}">${clEsc(clDate(rel.date))}</time>
           ${i === 0 ? `<span class="cl-latest">${clEsc(clT('latest'))}</span>` : ''}
-        </div>
-        <h2 class="cl-title">${clEsc(clTxt(rel.title))}</h2>
+        </h2>
         <ul class="cl-changes">${changes}</ul>
       </li>`;
   }).join('');

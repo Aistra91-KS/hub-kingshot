@@ -27,6 +27,104 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
 /* ---------- sommaire : grille de cartes ---------- */
 .sx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 
+/* ---------- sommaire : « Voir plus » par catégorie ----------
+   DEUX LIGNES de vignettes par défaut, le reste derrière un bouton. Le nombre de colonnes
+   vient de `auto-fill` : il change avec la largeur, donc le plafond doit changer avec lui,
+   sinon « 2 lignes » coupe au milieu d'une ligne. Plafonds = 2 × le nombre de colonnes :
+
+     < 576px   1 colonne   -> 4   (deux lignes n'en montreraient que 2 : trop peu, on garde 4)
+     576-883   2 colonnes  -> 4
+     884-1159  3 colonnes  -> 6
+     >= 1160   4 colonnes  -> 8
+
+   Les trois seuils sont ceux de la grille elle-même (minmax(260px,1fr) + gap 16px), relevés
+   au navigateur. Les déplacer sans les remesurer redonne des lignes coupées.
+
+   Découpe au nombre de cartes, pas à la hauteur : une `max-height` supposerait des lignes de
+   même hauteur, alors qu'une ligne s'aligne sur sa carte la plus haute (les noms de boutique
+   ne font pas tous une ligne). Et pas de dégradé de fondu sur la coupe : elle tombe pile
+   entre deux lignes, un fondu laisserait croire qu'une ligne est à moitié cachée.
+
+   TOUT LE BLOC EST SOUS `@supports selector(:has(*))`, découpe comprise, et ce n'est pas
+   un détail de confort. C'est `:has()` qui fait apparaître le bouton ; un navigateur qui
+   l'ignore jette ces règles-là mais applique quand même la découpe — cartes masquées, plus
+   aucun bouton pour les révéler, 7 boutiques sur 15 injoignables depuis leur seul lien
+   interne. Liées, les deux disparaissent ensemble : la grille s'affiche entière, comme
+   avant. Même repli que le <noscript> de shop_calc.html, pour la même raison. */
+.sx-more { display: none; }
+
+@supports selector(:has(*)) {
+  .sx-grid.is-clamped > .sx-card:nth-child(n+5) { display: none; }
+  @media (min-width: 884px) {
+    .sx-grid.is-clamped > .sx-card:nth-child(n+5) { display: flex; }
+    .sx-grid.is-clamped > .sx-card:nth-child(n+7) { display: none; }
+  }
+  @media (min-width: 1160px) {
+    .sx-grid.is-clamped > .sx-card:nth-child(n+7) { display: flex; }
+    .sx-grid.is-clamped > .sx-card:nth-child(n+9) { display: none; }
+  }
+
+  /* Le bouton n'existe que si la catégorie DÉPASSE son plafond : à 8 boutiques sur 4 colonnes
+     il n'y a rien à révéler, donc rien à afficher. `:has()` le décide au même endroit et aux
+     mêmes seuils que la découpe — une catégorie qui grossit fait apparaître son bouton sans
+     qu'on touche à quoi que ce soit. La n-ième carte existe = il y en a plus de n-1. */
+  .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more { display: flex; }
+  @media (min-width: 884px) {
+    .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more { display: none; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more { display: flex; }
+  }
+  @media (min-width: 1160px) {
+    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more { display: none; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(9)) .sx-more { display: flex; }
+  }
+}
+
+/* Vocabulaire de `.sx-btn`, en pastille centrée sous la grille : c'est la fin d'une section,
+   pas une commande de barre d'outils. 44px de haut = la cible tactile minimale.
+   Bloc centré par `margin:auto` plutôt qu'un conteneur flex : sans bouton à montrer, le
+   `display:none` ci-dessus fait tout disparaître, marge comprise — un conteneur, lui,
+   laisserait 16px de vide sous les catégories qui n'ont rien à replier. */
+.sx-more {
+  width: fit-content; margin: 16px auto 0;
+  align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 6px 20px;
+  /* --text-light, pas --text-muted : le gris sourd du site tient 4,39:1 sur ce fond, sous le
+     seuil de 4,5:1, et c'est ici un CONTRÔLE, pas une légende. Même couleur que `.sx-btn`. */
+  background: var(--control-bg); color: var(--text-light);
+  border: 1px solid var(--border); border-radius: 999px;
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+/* Au survol, l'or va sur la BORDURE, pas sur le texte. `.sx-btn` dore les deux, mais l'or du
+   thème clair (#c89020) sur ce fond ne tient que 2,55:1 — illisible au moment précis où on
+   pointe le bouton. La bordure suffit à dire que ça réagit. */
+.sx-more:hover { border-color: var(--accent); }
+.sx-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sx-more:active { transform: translateY(1px); }
+
+/* Chevron dessiné en CSS plutôt qu'un emoji : il doit tourner, et suivre la couleur du texte. */
+.sx-more-chev {
+  width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); transition: transform .2s;
+}
+.sx-more[aria-expanded="true"] .sx-more-chev { transform: translateY(2px) rotate(225deg); }
+.sx-more-less { display: none; }
+.sx-more[aria-expanded="true"] .sx-more-all { display: none; }
+.sx-more[aria-expanded="true"] .sx-more-less { display: inline; }
+
+/* Nom de la catégorie : lu, jamais vu — « Voir plus de boutiques d'événement ». Les trois
+   boutons diraient sinon « Voir plus » à l'identique, et rien ne dirait lequel déplie quoi.
+   Découpe à 1px plutôt que `display:none`, qui le sortirait aussi de l'arbre d'accessibilité
+   — c'est exactement ce qu'on ne veut pas ici (à l'inverse du libellé replié juste au-dessus,
+   lui bel et bien à taire). */
+.sx-more-cat {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-more, .sx-more-chev { transition: none; }
+}
+
 .sx-card {
   position: relative; display: flex; flex-direction: column; overflow: hidden;
   background: var(--bg-panel); border: 1px solid var(--border); border-top: 3px solid var(--accent);

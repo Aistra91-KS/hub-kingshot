@@ -55,6 +55,20 @@ function scOrderEvents(){
     .forEach(o=>grid.appendChild(o.c));
 }
 
+// « Voir plus / Voir moins » d'une catégorie. Tout le reste est en CSS : combien de vignettes
+// tiennent (le plafond suit le nombre de colonnes), quel libellé montrer, et s'il y a seulement
+// lieu d'afficher le bouton. Ici on ne fait que basculer l'état — et `aria-expanded` le porte
+// pour les deux publics à la fois : les lecteurs d'écran, et le sélecteur CSS du libellé.
+function scBindMore(){
+  document.querySelectorAll('.sx-more').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const grid=document.getElementById(btn.getAttribute('aria-controls')); if(!grid) return;
+      // toggle() rend true quand la classe VIENT d'être posée, c.-à-d. quand on REPLIE.
+      btn.setAttribute('aria-expanded', String(!grid.classList.toggle('is-clamped')));
+    });
+  });
+}
+
 function scRenderIndex(){
   document.querySelectorAll('.sx-card[data-shop-slug]').forEach(scHydrateCard);
   scOrderEvents();
@@ -70,6 +84,10 @@ function scRenderIndex(){
 function scRefreshIndex(){ scApplyTranslations(); scRenderIndex(); }
 
 (async function(){
+  // AVANT le chargement des données : cartes et boutons sont écrits en dur, replier et
+  // déplier ne dépend d'aucun JSON. Le sommaire répond donc au clic tout de suite, même
+  // si les fichiers tardent — ou ne viennent jamais.
+  scBindMore();
   await scLoadAll();
   scApplyTranslations();
   scRenderIndex();
