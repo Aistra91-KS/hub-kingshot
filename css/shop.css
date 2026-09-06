@@ -54,6 +54,24 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
 .sx-more { display: none; }
 
 @supports selector(:has(*)) {
+  /* SIGNAL À DESTINATION DU JS, et la seule chose qui l'autorise à replier quoi que ce
+     soit. Le site n'a pas de cache-busting : un visiteur de retour peut très bien recevoir
+     ce CSS neuf avec un `shop_calc.js` encore en cache. La découpe s'appliquait alors sans
+     que rien ne branche le bouton — cartes masquées, bouton inerte, boutiques injoignables
+     (le <noscript> ne rattrape rien, le JS est actif, juste périmé). Le JS lit donc cette
+     variable AVANT de replier : elle n'existe que dans la feuille qui sait replier, et
+     seulement là où `:has()` répond. Ne jamais la déclarer hors de ce bloc. */
+  .sx-grid { --sx-fold: 1; }
+
+  /* `hidden` sur la case et le libellé, levé ICI seulement : avec une feuille en cache,
+     les deux restent invisibles et rien n'est replié — la grille d'avant, à l'identique.
+     La case reste FOCUSABLE (elle n'est plus `display:none`), c'est elle qui reçoit le
+     clavier ; le libellé porte le focus à l'écran. */
+  .sx-more-cb[hidden] {
+    display: block; position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+
   .sx-grid.is-clamped > .sx-card:nth-child(n+5) { display: none; }
   @media (min-width: 884px) {
     .sx-grid.is-clamped > .sx-card:nth-child(n+5) { display: flex; }
@@ -63,19 +81,21 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
     .sx-grid.is-clamped > .sx-card:nth-child(n+7) { display: flex; }
     .sx-grid.is-clamped > .sx-card:nth-child(n+9) { display: none; }
   }
+  /* Case cochée = tout est montré. La case précède la grille, d'où `~`. */
+  .sx-more-cb:checked ~ .sx-grid.is-clamped > .sx-card { display: flex; }
 
   /* Le bouton n'existe que si la catégorie DÉPASSE son plafond : à 8 boutiques sur 4 colonnes
      il n'y a rien à révéler, donc rien à afficher. `:has()` le décide au même endroit et aux
      mêmes seuils que la découpe — une catégorie qui grossit fait apparaître son bouton sans
      qu'on touche à quoi que ce soit. La n-ième carte existe = il y en a plus de n-1. */
-  .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more { display: flex; }
+  .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more[hidden] { display: flex; }
   @media (min-width: 884px) {
-    .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more { display: none; }
-    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more { display: flex; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(5)) .sx-more[hidden] { display: none; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more[hidden] { display: flex; }
   }
   @media (min-width: 1160px) {
-    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more { display: none; }
-    .sx-section:has(.sx-grid > .sx-card:nth-child(9)) .sx-more { display: flex; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(7)) .sx-more[hidden] { display: none; }
+    .sx-section:has(.sx-grid > .sx-card:nth-child(9)) .sx-more[hidden] { display: flex; }
   }
 }
 
@@ -98,7 +118,8 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
    thème clair (#c89020) sur ce fond ne tient que 2,55:1 — illisible au moment précis où on
    pointe le bouton. La bordure suffit à dire que ça réagit. */
 .sx-more:hover { border-color: var(--accent); }
-.sx-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Le focus clavier arrive sur la CASE (invisible) : c'est le libellé qui doit le montrer. */
+.sx-more-cb:focus-visible ~ .sx-more { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sx-more:active { transform: translateY(1px); }
 
 /* Chevron dessiné en CSS plutôt qu'un emoji : il doit tourner, et suivre la couleur du texte. */
@@ -106,10 +127,10 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
   width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
   transform: translateY(-2px) rotate(45deg); transition: transform .2s;
 }
-.sx-more[aria-expanded="true"] .sx-more-chev { transform: translateY(2px) rotate(225deg); }
+.sx-more-cb:checked ~ .sx-more .sx-more-chev { transform: translateY(2px) rotate(225deg); }
 .sx-more-less { display: none; }
-.sx-more[aria-expanded="true"] .sx-more-all { display: none; }
-.sx-more[aria-expanded="true"] .sx-more-less { display: inline; }
+.sx-more-cb:checked ~ .sx-more .sx-more-all { display: none; }
+.sx-more-cb:checked ~ .sx-more .sx-more-less { display: inline; }
 
 /* Nom de la catégorie : lu, jamais vu — « Voir plus de boutiques d'événement ». Les trois
    boutons diraient sinon « Voir plus » à l'identique, et rien ne dirait lequel déplie quoi.
@@ -140,6 +161,14 @@ body:not(.hub-body) .db-page { width: 100%; min-width: 0; }
 .sx-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px var(--shadow); }
 .sx-card:hover::before { left: 100%; }
 .sx-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Place RÉSERVÉE à la vignette, en attendant que le JS la remplace par la vraie.
+   Sans elle, `.sx-thumb-slot` est un span vide de hauteur nulle : à l'arrivée des données,
+   chaque carte gagnait d'un coup la hauteur d'une image et poussait toute la page vers le
+   bas — un décalage de mise en page mesuré à 0,68 sur mobile, très au-dessus du 0,1 que
+   Google considère comme bon. Même `aspect-ratio` que `.sx-thumb` : la place prise avant
+   et après est exactement la même, donc plus rien ne bouge. */
+.sx-thumb-slot { display: block; aspect-ratio: 16 / 9; border-bottom: 1px solid var(--border); }
 
 /* ---------- vignette : photo si elle existe, sinon mosaïque des 4 meilleurs objets ---------- */
 .sx-thumb {
