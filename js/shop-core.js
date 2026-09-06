@@ -555,10 +555,12 @@ function scTimeLeft(endsAt){
   return { permanent:false, ended:false, ms, days:Math.floor(mins/1440), hours:Math.floor(mins%1440/60), minutes:mins%60 };
 }
 // « 6j 14h » · « 14h 20min » · « Terminé ». Sous 24h, l'échéance devient urgente (couleur côté CSS).
-function scTimeLeftTxt(endsAt){
+// `full` : une fois l'échéance passée, dire « Événement terminé » plutôt que « Terminé ».
+// Les pastilles de page ont la place de la phrase entière, les badges du sommaire non.
+function scTimeLeftTxt(endsAt, full){
   const t=scTimeLeft(endsAt);
   if(t.permanent) return scT('permanent');
-  if(t.ended) return scT('endedShort');
+  if(t.ended) return scT(full?'ended':'endedShort');
   if(t.days>0) return `${t.days}${scT('days')} ${t.hours}${scT('hours')}`;
   if(t.hours>0) return `${t.hours}${scT('hours')} ${t.minutes}${scT('minutes')}`;
   return `${t.minutes}${scT('minutes')}`;
@@ -566,12 +568,43 @@ function scTimeLeftTxt(endsAt){
 function scIsEnded(shop){ return !!(shop && shop.endsAt) && scTimeLeft(shop.endsAt).ended; }
 function scIsUrgent(shop){ const t=scTimeLeft(shop&&shop.endsAt); return !t.permanent && !t.ended && t.days<1; }
 // Rafraîchit tous les compteurs de la page (minute par minute : inutile d'aller plus vite).
+//
+// Réécrire le seul texte ne suffit pas : sur une page laissée ouverte, l'instant où
+// l'échéance tombe donnait « Fin dans : Terminé » en orange — le libellé et la couleur
+// mentaient encore. Trois attributs, posés par la page, disent au tick quoi corriger :
+//   · data-ends-full   sur le compteur : dire « Événement terminé » plutôt que « Terminé »
+//   · data-ends-state  sur l'élément qui porte la classe live / urgent / ended
+//   · data-ends-label  sur le libellé (« Fin dans : ») à masquer une fois l'échéance passée
+// Aucun n'est requis : une page servie avec un shop-core.js en cache ne les porte pas, son
+// compteur se comporte alors comme avant — jamais plus mal (cf. CLAUDE.md, règle du cache).
+//
+// Et le compteur ne peut pas tout réparer seul : au passage d'une échéance, le bandeau
+// d'archive, les compteurs du sommaire, l'ordre des cartes et le verdict du Théâtre sont
+// tout aussi périmés. D'où l'événement `endsStateChanged`, émis UNIQUEMENT quand un état
+// bascule (jamais à chaque minute) : chaque page s'y raccroche avec le re-rendu qu'elle a
+// déjà pour le changement de langue. Un événement, pas un appel : une page au JS en cache
+// ne l'écoute simplement pas, et personne ne peut appeler un nom qui n'existe pas encore.
 function scStartCountdowns(){
+  let seen=null;   // signature des états au tick précédent, pour ne parler qu'au changement
   const tick=()=>{
+    const now=[];
     document.querySelectorAll('[data-ends-at]').forEach(el=>{
-      const at=el.getAttribute('data-ends-at');
-      el.textContent = (el.hasAttribute('data-ends-prefix') && !scTimeLeft(at).ended ? scT('endsIn')+' ' : '') + scTimeLeftTxt(at);
+      const at=el.getAttribute('data-ends-at'), t=scTimeLeft(at);
+      const state=t.ended?'ended':(!t.permanent && t.days<1)?'urgent':'live';
+      now.push(at+':'+state);
+      el.textContent = (el.hasAttribute('data-ends-prefix') && !t.ended ? scT('endsIn')+' ' : '')
+                     + scTimeLeftTxt(at, el.hasAttribute('data-ends-full'));
+      const host=el.closest('[data-ends-state]'); if(!host) return;
+      host.classList.remove('live','urgent','ended');
+      host.classList.add(state);
+      // La carte du sommaire se grise en entier, pas seulement son badge.
+      const card=host.closest('.sx-card'); if(card) card.classList.toggle('is-ended', t.ended);
+      host.querySelectorAll('[data-ends-label]').forEach(l=>{ l.hidden = t.ended; });
     });
+    const sig=now.join('|');
+    // Le premier tick ne signale rien : la page vient de se rendre, elle est à jour.
+    if(seen!==null && sig!==seen) window.dispatchEvent(new Event('endsStateChanged'));
+    seen=sig;
   };
   tick(); setInterval(tick, 60000);
   window.addEventListener('langChanged', tick);

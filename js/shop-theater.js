@@ -600,6 +600,14 @@ function stDeadline() {
     return parts.join(' ') || (fr ? 'moins d’une minute' : 'less than a minute');
 }
 
+/* L'ÉVÉNEMENT est-il fermé ? La boutique lui survit 24 h, et c'est précisément la
+   fenêtre à traiter : le tirage est clos — donc plus une seule exploration, plus un
+   seul encaissement — alors que les Jetons restent dépensables. */
+function stEventOver() {
+    const end = ST.eventEnd ? Date.parse(ST.eventEnd) : NaN;
+    return isFinite(end) && end <= Date.now();
+}
+
 /* Accès à shop-event.js par son API publique. `data`, `plan` et `compute` sont
    des noms nés dans le même lot que ce fichier, ce que la règle de cache du
    projet déconseille (cf. CLAUDE.md) — mais `seExtras`, le point d'extension qui
@@ -683,7 +691,26 @@ function stRender(host, c) {
 
     // --- que faire maintenant ---
     let verdict = '';
-    if (!total) {
+    if (stEventOver()) {
+        // Le tirage ferme AVEC l'événement, la boutique 24 h plus tard. Pendant ces 24 h,
+        // la cascade ci-dessous — qui ne regarde qu'un budget d'amulettes — continuait à
+        // conseiller « Pousse » ou « Encaisse », deux gestes que le jeu ne propose plus ;
+        // et l'avertissement qui expliquait le piège disparaissait au même instant, puisque
+        // stDeadline() passe à null. D'où cette branche EN TÊTE : le seul geste qui reste,
+        // c'est dépenser ses Jetons. Les tableaux, eux, restent affichés comme référence.
+        const shop = (typeof spShop === 'function') ? spShop() : null;
+        const open = !!(shop && shop.endsAt && !scIsEnded(shop));
+        // Durée figée au rendu, volontairement : la section se redessine à la moindre
+        // interaction, et un compteur vivant finirait par écrire « ferme dans Terminé ».
+        const left = open ? scTimeLeftTxt(shop.endsAt) : '';
+        verdict = `<p>${fr
+            ? `<strong>L’événement est terminé.</strong> Le tirage est fermé : plus d’exploration ni d’encaissement possible. ` + (open
+                ? `Il ne te reste qu’à dépenser tes Jetons dans le tableau de la boutique ci-dessus — elle ferme dans <strong>${left}</strong>.`
+                : `La boutique a fermé elle aussi : les chiffres ci-dessous restent affichés pour comparer, ou préparer le prochain passage.`)
+            : `<strong>The event is over.</strong> The draw is closed: no more exploration, no more cashing in. ` + (open
+                ? `All that is left is spending your Tokens in the shop table above - it closes in <strong>${left}</strong>.`
+                : `The shop has closed too: the figures below stay up so you can compare, or get ready for its next run.`)}</p>`;
+    } else if (!total) {
         verdict = `<p>${stT('noPlan')}</p>`;
     } else if (!tok) {
         // Barème entièrement remis à zéro par le joueur : plus aucun étage ne paie,

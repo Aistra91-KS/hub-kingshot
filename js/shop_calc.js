@@ -30,7 +30,12 @@ function scHydrateCard(card){
     const b=document.createElement('span');
     b.className='sx-badge '+(ended?'ended':urgent?'urgent':'live');
     b.setAttribute('data-ends-at', shop.endsAt);
-    if(!ended) b.setAttribute('data-ends-prefix','1');
+    // Le badge porte sa propre couleur : scStartCountdowns la réécrit à chaque minute,
+    // et grise la carte avec, pour qu'un sommaire laissé ouvert ne fige pas un « en cours ».
+    b.setAttribute('data-ends-state','1');
+    // Posé dans tous les cas : c'est le tick qui décide de montrer « Fin dans » ou non,
+    // sinon un badge hydraté « terminé » n'aurait plus de préfixe à retrouver.
+    b.setAttribute('data-ends-prefix','1');
     b.textContent=(ended?'':scT('endsIn')+' ')+scTimeLeftTxt(shop.endsAt);
     thumb.appendChild(b);
   }
@@ -89,4 +94,7 @@ function scRefreshIndex(){ scApplyTranslations(); scRenderIndex(); }
   });
 
   window.addEventListener('langChanged', scRefreshIndex);
+  // Un événement vient de se terminer sur un sommaire laissé ouvert : le compteur
+  // « n en cours » et l'ordre des cartes sont périmés, pas seulement le badge.
+  window.addEventListener('endsStateChanged', scRefreshIndex);
 })();
