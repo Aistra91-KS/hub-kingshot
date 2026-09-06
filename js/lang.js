@@ -22,7 +22,9 @@ const GlobalLang = {
      */
     set(lang) {
         if (lang !== 'FR' && lang !== 'EN') return;
-        localStorage.setItem(this.STORAGE_KEY, lang);
+        // Le choix de langue n'est qu'une préférence : s'il ne peut pas être écrit
+        // (navigation privée, quota), la bascule doit tout de même avoir lieu à l'écran.
+        try { localStorage.setItem(this.STORAGE_KEY, lang); } catch (e) { /* préférence non retenue */ }
         // Émet un événement custom pour notifier d'autres scripts
         window.dispatchEvent(new CustomEvent('langChanged', { detail: { lang } }));
     },

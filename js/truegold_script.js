@@ -604,7 +604,7 @@ function saveData() {
         panReduction: document.getElementById('panReduction').value,
         buildings: buildingsState
     };
-    localStorage.setItem(STORAGE_KEYS.truegold, JSON.stringify(data));
+    try { localStorage.setItem(STORAGE_KEYS.truegold, JSON.stringify(data)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 function loadData() {

@@ -152,12 +152,12 @@ function initData() {
 }
 
 function saveData() {
-    localStorage.setItem(STORAGE_KEYS.researchDb, JSON.stringify(db));
+    try { localStorage.setItem(STORAGE_KEYS.researchDb, JSON.stringify(db)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
     const inputsState = { bonusAsPercent: true };
     Object.keys(inputs).forEach(key => {
         inputsState[key] = inputs[key].type === 'checkbox' ? inputs[key].checked : inputs[key].value;
     });
-    localStorage.setItem(STORAGE_KEYS.researchInputs, JSON.stringify(inputsState));
+    try { localStorage.setItem(STORAGE_KEYS.researchInputs, JSON.stringify(inputsState)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 // ============ UTILS ============

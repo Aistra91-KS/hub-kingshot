@@ -584,10 +584,22 @@ function scStartCountdowns(){
 // « Shop introuvable » sur une page pourtant en ligne. `cache:'no-cache'` ne désactive pas
 // le cache, il force sa REVALIDATION : le serveur répond 304 (quelques octets) tant que le
 // fichier n'a pas bougé, et le nouveau contenu arrive dès qu'il bouge.
-function scFetchData(file){ return fetch(file, { cache: 'no-cache' }); }
+// Le statut HTTP est contrôlé ICI, en un seul point. Sans lui, une réponse d'erreur
+// portant un corps JSON valide (page de maintenance, redirection d'un proxy) était lue
+// comme des données ; et un 503 renvoyant du HTML ne se distinguait d'un fichier vide
+// que par un message dans la console, que personne ne lit.
+async function scFetchData(file){
+  const r = await fetch(file, { cache: 'no-cache' });
+  if(!r.ok) throw new Error(file + ' — HTTP ' + r.status);
+  return r;
+}
+
+// Fichiers dont le chargement a échoué au dernier `scLoadAll()`. Une collection vide
+// n'est plus ambiguë : soit la boutique est réellement vide, soit son fichier manque.
+let SC_LOAD_FAILED = [];
 
 async function scLoadItems(){
-  try{ SC_DEFAULTS = await (await scFetchData('data/shopcalc_items.json')).json(); }catch(e){ console.error('items',e); SC_DEFAULTS=[]; }
+  try{ SC_DEFAULTS = await (await scFetchData('data/shopcalc_items.json')).json(); }catch(e){ console.error('items',e); SC_DEFAULTS=[]; SC_LOAD_FAILED.push('items'); }
   const saved = safeParse(STORAGE_KEYS.shopcalcItems,null);
   // Le FICHIER est la liste de référence (même logique que les boutiques d'événement) : un objet
   // ajouté au JSON apparaît toujours ; seule la valeur en gemmes éditée est réappliquée par id.
@@ -597,18 +609,25 @@ async function scLoadItems(){
     : (Array.isArray(saved)?saved.map(x=>({...x})):[]);   // secours : fichier injoignable
   SC_ITEMS.forEach(it=>{ if(typeof it.name==='string') it.name={EN:it.name,FR:it.name}; });
 }
-function scSaveItems(){ localStorage.setItem(STORAGE_KEYS.shopcalcItems, JSON.stringify(SC_ITEMS)); }
+// Écriture tolérante : un stockage plein laissait l'exception remonter jusqu'au
+// chargement, qui s'arrêtait net et rendait un tableau vide. Le calcul vaut mieux
+// que la persistance — on garde l'affichage juste et on prévient le joueur.
+function scSaveItems(){
+  const raw = JSON.stringify(SC_ITEMS);
+  if(window.ktSafeSet) return window.ktSafeSet(STORAGE_KEYS.shopcalcItems, raw);
+  try{ localStorage.setItem(STORAGE_KEYS.shopcalcItems, raw); return true; }catch(e){ return false; }
+}
 
 async function scLoadClassic(){
   // Classique = boutiques admin en LECTURE SEULE : toujours chargées depuis le fichier,
   // sans localStorage (seules les valeurs en gemmes du référentiel l'impactent).
-  try{ SC_CLASSIC = await (await scFetchData('data/shopcalc_classic.json')).json(); }catch(e){ console.error('classic',e); SC_CLASSIC=[]; }
+  try{ SC_CLASSIC = await (await scFetchData('data/shopcalc_classic.json')).json(); }catch(e){ console.error('classic',e); SC_CLASSIC=[]; SC_LOAD_FAILED.push('classic'); }
 }
 
 // Boutiques d'événement : admin-sourcées (data/shopcalc_events.json).
 // L'utilisateur ne crée pas de boutique ; il édite seulement le contenu (qté, coût, ajout, retrait).
 async function scLoadEvents(){
-  try{ SC_EVENTS_DEF = await (await scFetchData('data/shopcalc_events.json')).json(); }catch(e){ console.error('events',e); SC_EVENTS_DEF=[]; }
+  try{ SC_EVENTS_DEF = await (await scFetchData('data/shopcalc_events.json')).json(); }catch(e){ console.error('events',e); SC_EVENTS_DEF=[]; SC_LOAD_FAILED.push('events'); }
   const saved = safeParse(STORAGE_KEYS.shopcalcEvents,null);
   // Le FICHIER est la liste de référence : on réapplique les éditions user par id,
   // et on ignore les boutiques absentes du fichier (anciennes boutiques de test = fantômes).
@@ -636,7 +655,14 @@ async function scLoadEvents(){
   // Nettoie les fantômes du localStorage (seulement si le fichier a bien chargé, pour ne rien effacer sur une erreur réseau).
   if(SC_EVENTS_DEF.length) scSaveEvents();
 }
-function scSaveEvents(){ localStorage.setItem(STORAGE_KEYS.shopcalcEvents, JSON.stringify(SC_EVENTS)); }
+// Même filet, et il compte double ici : `scLoadEvents()` appelle cette fonction
+// PENDANT le chargement, pour nettoyer les boutiques fantômes. Sans protection,
+// un quota atteint interrompait le chargement lui-même.
+function scSaveEvents(){
+  const raw = JSON.stringify(SC_EVENTS);
+  if(window.ktSafeSet) return window.ktSafeSet(STORAGE_KEYS.shopcalcEvents, raw);
+  try{ localStorage.setItem(STORAGE_KEYS.shopcalcEvents, raw); return true; }catch(e){ return false; }
+}
 
 // Relevé € : fichier ADMIN en lecture seule, comme les boutiques classiques.
 // Aucun localStorage : la donnée est régénérable d'un bloc depuis le relevé interne.
@@ -647,20 +673,66 @@ async function scLoadEuro(){
     SC_EURO_DERIVED=(d&&d.derived)||{};
     SC_EURO_SPEEDUPS=(d&&d.speedups)||{}; SC_EURO_WEIGHTS=(d&&Array.isArray(d.weights)?d.weights:[]);
   }
-  catch(e){ console.error('euro',e); SC_EURO={}; SC_EURO_META={}; SC_EURO_PACKS={}; SC_EURO_DERIVED={};
+  catch(e){ console.error('euro',e); SC_LOAD_FAILED.push('euro'); SC_EURO={}; SC_EURO_META={}; SC_EURO_PACKS={}; SC_EURO_DERIVED={};
            SC_EURO_SPEEDUPS={}; SC_EURO_WEIGHTS=[]; }
 }
 
 async function scLoadChests(){
   try{ SC_CHESTS = await (await scFetchData('data/shopcalc_chests.json')).json(); }
-  catch(e){ console.error('chests',e); SC_CHESTS=[]; }
+  catch(e){ console.error('chests',e); SC_CHESTS=[]; SC_LOAD_FAILED.push('chests'); }
 }
 // Les cinq fichiers sont INDÉPENDANTS : aucun chargeur ne lit les globales d'un autre, et
 // chacun gère déjà son propre échec. Les attendre l'un après l'autre coûtait cinq allers-
 // retours réseau en série avant le premier rendu — d'autant plus longs que `no-cache` les
 // fait tous revalider. En parallèle, c'est le plus lent qui donne le temps d'attente.
 async function scLoadAll(){
+  SC_LOAD_FAILED = [];
   await Promise.all([scLoadItems(), scLoadClassic(), scLoadEvents(), scLoadChests(), scLoadEuro()]);
+  // Une panne réseau ne doit plus ressembler à un site sans contenu : les chargeurs
+  // retombent sur des collections vides, ce qui rendait une page parfaitement muette.
+  if(SC_LOAD_FAILED.length) scWarnDataFailure();
+}
+
+// Bandeau de panne des données communes. Défini et appelé DANS ce fichier : aucun
+// autre script ne le nomme, donc aucun risque de ReferenceError si une page neuve
+// tombe sur une version de shop-core.js encore en cache (cf. MAP.md §9).
+function scWarnDataFailure(){
+  const show = () => {
+   try{
+    if(!document.body || document.getElementById('sc-data-error')) return;
+    let fr = false;
+    try{ fr = (typeof scLang==='function' ? scLang() : 'EN') === 'FR'; }catch(e){ /* stockage interdit */ }
+    const el = document.createElement('div');
+    el.id = 'sc-data-error';
+    el.setAttribute('role','alert');
+    el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;padding:12px 16px;'
+      + 'background:#b45309;color:#fff;font-size:14px;line-height:1.45;text-align:center;'
+      + 'box-shadow:0 2px 12px rgba(0,0,0,.3)';
+    el.textContent = fr
+      ? 'Certaines données du site n\u2019ont pas pu être chargées : les chiffres affichés sont incomplets.'
+      : 'Some site data could not be loaded: the figures shown are incomplete.';
+    const again = document.createElement('button');
+    again.type = 'button';
+    again.textContent = fr ? 'Réessayer' : 'Retry';
+    again.style.cssText = 'margin-left:12px;padding:4px 12px;border:1px solid #fff;border-radius:6px;'
+      + 'background:transparent;color:#fff;cursor:pointer;font-size:13px';
+    again.onclick = () => location.reload();
+    el.appendChild(again);
+    // Croix de fermeture : le bandeau couvre `.app-header` (fixed, top:0). Sans
+    // elle, toute la navigation du site restait hors de portée pendant la panne,
+    // et « Réessayer » ne faisait que la ramener.
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.setAttribute('aria-label', fr ? 'Fermer l\u2019avertissement' : 'Dismiss warning');
+    x.textContent = '\u00d7';
+    x.style.cssText = 'margin-left:12px;background:none;border:none;color:#fff;'
+      + 'font-size:20px;line-height:1;cursor:pointer';
+    x.onclick = () => el.remove();
+    el.appendChild(x);
+    document.body.appendChild(el);
+   }catch(e){ /* un avertissement ne doit jamais casser son appelant */ }
+  };
+  if(document.body) show(); else document.addEventListener('DOMContentLoaded', show);
 }
 
 // ---------- résolution boutique <-> page ----------

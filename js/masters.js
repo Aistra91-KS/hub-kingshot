@@ -151,7 +151,7 @@ let userMasters = safeParse(STORAGE_KEYS.masters, {});
       changed = true;
     }
   }
-  if (changed) localStorage.setItem(STORAGE_KEYS.masters, JSON.stringify(userMasters));
+  if (changed) try { localStorage.setItem(STORAGE_KEYS.masters, JSON.stringify(userMasters)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 })();
 let currentMasterId = null;
 let modalState = { displayLevel: 0, breakthroughs: {}, relLevel: 0, skills: {} };
@@ -476,7 +476,7 @@ function saveMasterSettings() {
         };
     }
     
-    localStorage.setItem(STORAGE_KEYS.masters, JSON.stringify(userMasters));
+    try { localStorage.setItem(STORAGE_KEYS.masters, JSON.stringify(userMasters)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
     renderMastersGrid();
     closeMasterModal();
 }

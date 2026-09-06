@@ -210,7 +210,7 @@ function setHeroAuthorized(heroId, gen, allowed) {
 }
 function resetJoinerAuth(gen) { delete joinerAuth[String(gen)]; saveJoinerAuth(); }
 function saveJoinerAuth() {
-    try { localStorage.setItem(STORAGE_KEYS.beartrapJoiners, JSON.stringify(joinerAuth)); } catch (e) {}
+    try { localStorage.setItem(STORAGE_KEYS.beartrapJoiners, JSON.stringify(joinerAuth)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 // ---- Menu d'autorisation (modale) ----
@@ -607,7 +607,7 @@ function saveBearTrapData() {
     data['cap-expert-auto'] = expertAutoMode;
     data['cap-animal-auto'] = animalAutoMode;
 
-    localStorage.setItem(STORAGE_KEYS.beartrap, JSON.stringify(data));
+    try { localStorage.setItem(STORAGE_KEYS.beartrap, JSON.stringify(data)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 function loadBearTrapData() {

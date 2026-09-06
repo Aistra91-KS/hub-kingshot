@@ -170,7 +170,7 @@ function saveData() {
         pet: document.getElementById('vk-pet').checked,
         marches: getRawNumber('vk-marches')
     };
-    try { localStorage.setItem(STORAGE_KEYS.vikings, JSON.stringify(data)); } catch (e) {}
+    try { localStorage.setItem(STORAGE_KEYS.vikings, JSON.stringify(data)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 function loadData() {

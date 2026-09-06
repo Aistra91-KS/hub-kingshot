@@ -203,7 +203,7 @@
 
   // ---------------- persistence ----------------
   function save() {
-    try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) { /* quota */ }
+    try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch (e) { /* quota */ if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
   }
   function load() {
     let saved = null;

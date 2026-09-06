@@ -174,7 +174,7 @@
       <button class="help-banner-more" type="button">${esc(t('how'))}</button>
       <button class="help-banner-x" type="button" aria-label="${esc(t('dismiss'))}">&times;</button>`;
     bn.querySelector('.help-banner-more').addEventListener('click', openModal);
-    bn.querySelector('.help-banner-x').addEventListener('click', () => { localStorage.setItem(key, '1'); bn.remove(); });
+    bn.querySelector('.help-banner-x').addEventListener('click', () => { try { localStorage.setItem(key, '1'); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); } bn.remove(); });
     (document.querySelector('button.help-btn[data-help]') || a).insertAdjacentElement('afterend', bn);
   }
 

@@ -48,7 +48,13 @@
     } catch (e) { /* corrompu → réamorçage */ }
     return null;
   }
-  function writeRegistry() { nativeSet(REGISTRY_KEY, JSON.stringify(registry)); }
+  // Un stockage plein ou interdit ne doit pas empêcher le reste de la page de vivre :
+  // sans ce filet, l'exception traversait l'IIFE et `window.Profiles` n'existait jamais.
+  let storageOk = true;
+  function writeRegistry() {
+    try { nativeSet(REGISTRY_KEY, JSON.stringify(registry)); return true; }
+    catch (e) { storageOk = false; return false; }
+  }
 
   function genId() {
     return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
@@ -58,21 +64,42 @@
     return (lang === 'FR' ? 'Profil ' : 'Profile ') + n;
   }
 
-  // ---------- Amorçage + migration ----------
+  // ---------- Amorçage, PUIS migration ----------
+  // Deux opérations distinctes, et les confondre coûtait cher : créer un profil ne
+  // demande rien, migrer les clés demande de SAVOIR lesquelles migrer. Les pages qui
+  // chargent ce fichier sans `storage-keys.js` (base de données, À propos, Changelog)
+  // ont un `BUSINESS_KEYS` vide. Quand la présence du registre signalait à elle seule
+  // « migration faite », arriver par une de ces pages écrivait le registre sans rien
+  // migrer, et la page d'outil suivante ne migrait plus jamais : la clé à plat restait
+  // en place, mais plus personne n'allait la lire. Le registre dit désormais quelle
+  // migration a tourné (`mig`), et seule une page qui connaît les clés peut la poser.
+  const MIGRATION = 1;
+
   let registry = readRegistry();
   if (!registry) {
-    // Premier lancement du système de profils : le 1er profil hérite des
-    // données « à plat » déjà présentes (aucune perte pour l'utilisateur).
-    const id = 'p1';
-    registry = { v: 1, activeId: id, profiles: [{ id, name: defaultName(1), color: COLORS[0] }] };
+    // `p1` est un id FIXE, pas un hasard : si la migration s'interrompt avant d'avoir
+    // fini, le chargement suivant retrouve le même espace et reprend là où elle en était.
+    registry = { v: 1, activeId: 'p1',
+                 profiles: [{ id: 'p1', name: defaultName(1), color: COLORS[0] }] };
+    writeRegistry();
+  }
+
+  // Migration idempotente, reprenable, et qui ne détruit rien : elle ne s'exécute que
+  // sur une page qui connaît les clés métier, n'écrase jamais une valeur déjà présente
+  // dans le profil, et ne retire une clé à plat qu'APRÈS l'avoir recopiée avec succès.
+  if (BUSINESS_KEYS.size && registry.mig !== MIGRATION) {
+    const home = registry.profiles[0].id;   // le profil d'origine hérite de l'historique
+    let complete = true;
     BUSINESS_KEYS.forEach((key) => {
       const val = nativeGet(key);
-      if (val !== null && nativeGet(NS(id, key)) === null) {
-        nativeSet(NS(id, key), val);   // copie vers l'espace du profil
-        nativeRemove(key);             // retire la clé à plat (désormais orpheline)
-      }
+      if (val === null) return;                        // rien à plat pour cette clé
+      if (nativeGet(NS(home, key)) !== null) return;   // le profil a déjà la sienne : on n'y touche pas
+      try { nativeSet(NS(home, key), val); }
+      catch (e) { complete = false; return; }          // stockage plein : la clé à plat reste, on retentera
+      nativeRemove(key);
     });
-    writeRegistry(); // écrit en DERNIER : sa présence signale « migration faite »
+    // `mig` n'est posé que si TOUT est passé : une migration partielle reste à reprendre.
+    if (complete) { registry.mig = MIGRATION; writeRegistry(); }
   }
 
   // Sécurité : le profil actif doit exister.
@@ -169,6 +196,10 @@
     list, get, active, activeId: getActiveId,
     create, rename, remove, switch: switchTo,
     consumeSwitchToast,
+    // `false` dès qu'une écriture du registre a échoué (navigation privée, quota).
+    // Les appelants d'un AUTRE fichier doivent le tester en `typeof` : sans
+    // cache-busting sur le site, une page neuve peut tomber sur ce fichier en cache.
+    storageOk: () => storageOk,
     colors: COLORS.slice()
   };
 })();
