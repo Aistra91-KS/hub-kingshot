@@ -23,7 +23,12 @@ const i18nBackup = {
         errInvalidFile: "Fichier de sauvegarde invalide.",
         successImport: "Importation réussie ! {count} élément(s) restauré(s).\nLa page va se rafraîchir pour appliquer les données.",
         modMasters: "Conseil des Experts (Masters)",
-        errCorrupt: "Erreur lors de l'importation : Le fichier est corrompu ou ne provient pas de l'application."
+        errCorrupt: "Erreur lors de l'importation : Le fichier est corrompu ou ne provient pas de l'application.",
+        errInvalidModules: "Importation annulée : format invalide pour {list}. Aucune donnée n'a été remplacée.",
+        errNothingImport: "Ce fichier ne contient aucune donnée pour les modules cochés.",
+        errWriteFailed: "L'enregistrement a échoué (stockage plein ou navigation privée). Vos données précédentes ont été rétablies.",
+        errNothingExport: "Aucune donnée à exporter pour les modules cochés.",
+        warnPartialExport: "Sauvegarde exportée, mais ces modules étaient illisibles et en ont été exclus : {list}."
     },
     EN: {
         btnSidebar: "Global Backup",
@@ -45,7 +50,12 @@ const i18nBackup = {
         errInvalidFile: "Invalid backup file.",
         successImport: "Import successful! {count} item(s) restored.\nThe page will refresh to apply the data.",
         modMasters: "Hall of Masters (Experts)",
-        errCorrupt: "Import error: The file is corrupted or does not come from the application."
+        errCorrupt: "Import error: The file is corrupted or does not come from the application.",
+        errInvalidModules: "Import cancelled: invalid format for {list}. No data was replaced.",
+        errNothingImport: "This file holds no data for the checked modules.",
+        errWriteFailed: "Saving failed (storage full, or private browsing). Your previous data has been restored.",
+        errNothingExport: "No data to export for the checked modules.",
+        warnPartialExport: "Backup exported, but these modules were unreadable and were left out: {list}."
     }
 };
 
@@ -200,15 +210,32 @@ function executeExport() {
         data: {}
     };
 
+    // Chaque module est lu POUR LUI-MÊME. Auparavant un seul `JSON.parse` sur une
+    // valeur endommagée jetait une SyntaxError qui emportait tout l'export : aucun
+    // fichier ne sortait, et le joueur perdait son moyen de sauvegarde à l'instant
+    // précis où une donnée cassait — le seul moment où il en avait vraiment besoin.
+    const skipped = [];
     checkboxes.forEach(cb => {
         const mod = BACKUP_MODULES.find(m => m.id === cb.value);
-        if (mod) {
-            mod.keys.forEach(key => {
-                const storedValue = localStorage.getItem(key);
-                if (storedValue) backupData.data[key] = JSON.parse(storedValue);
-            });
-        }
+        if (!mod) return;
+        mod.keys.forEach(key => {
+            const storedValue = localStorage.getItem(key);
+            if (!storedValue) return;
+            try {
+                backupData.data[key] = JSON.parse(storedValue);
+            } catch (e) {
+                const label = dict[mod.labelKey];
+                if (skipped.indexOf(label) === -1) skipped.push(label);
+            }
+        });
     });
+
+    // Tout était illisible : il n'y a pas de fichier à produire, et le dire vaut
+    // mieux que télécharger une sauvegarde vide qui écraserait tout à la restauration.
+    if (!Object.keys(backupData.data).length) {
+        showBackupAlert(dict.errNothingExport, false);
+        return;
+    }
 
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const link = document.createElement("a");
@@ -219,6 +246,12 @@ function executeExport() {
     
     link.click();
     closeBackupModal();
+
+    // Un export amputé ne part pas en silence : le joueur doit savoir ce qui manque
+    // dans le fichier qu'il vient d'enregistrer, sinon il le croira complet.
+    if (skipped.length) {
+        showBackupAlert(dict.warnPartialExport.replace('{list}', skipped.join(', ')), false);
+    }
 }
 
 // --- LOGIQUE D'IMPORT ---
@@ -237,37 +270,94 @@ function executeImport(event) {
     }
     const reader = new FileReader();
     reader.onload = function(e) {
+        // Trois étapes SÉPARÉES, et l'ordre fait tout : on validait l'enveloppe puis on
+        // écrivait dans la foulée, si bien qu'un fichier au bon nom d'application suffisait
+        // à remplacer des héros par la chaîne "invalid-shape" — et à afficher « Import
+        // successful! ». Rien n'est plus écrit avant que TOUT ait été contrôlé.
+        let importedData;
         try {
-            const importedData = JSON.parse(e.target.result);
-            
-            // On accepte l'ancien nom ("Hub-Kingshot") pour ne pas casser les sauvegardes existantes.
-            if (!["Kingshot_Toolbox", "Hub-Kingshot"].includes(importedData.app) || !importedData.data) {
-                throw new Error("Invalid format");
-            }
-
-            let restoredCount = 0;
-
-            BACKUP_MODULES.forEach(mod => {
-                if (selectedModuleIds.includes(mod.id)) {
-                    mod.keys.forEach(key => {
-                        if (importedData.data[key] !== undefined) {
-                            localStorage.setItem(key, JSON.stringify(importedData.data[key]));
-                            restoredCount++;
-                        }
-                    });
-                }
-            });
-
-            showBackupAlert(dict.successImport.replace('{count}', restoredCount), true, () => {
-                // Cette fonction se déclenche uniquement QUAND on clique sur OK
-                location.reload(); 
-            });
-
+            importedData = JSON.parse(e.target.result);
         } catch (error) {
             showBackupAlert(dict.errCorrupt, false);
-            console.error(error);
+            event.target.value = '';
+            return;
         }
-        event.target.value = ''; 
+
+        // --- 1. L'enveloppe. On accepte l'ancien nom ("Hub-Kingshot") pour ne pas
+        //        casser les sauvegardes déjà entre les mains des joueurs.
+        const envelopeOk = importedData && typeof importedData === 'object' && !Array.isArray(importedData)
+            && ["Kingshot_Toolbox", "Hub-Kingshot"].includes(importedData.app)
+            && importedData.data && typeof importedData.data === 'object' && !Array.isArray(importedData.data);
+        if (!envelopeOk) {
+            showBackupAlert(dict.errCorrupt, false);
+            event.target.value = '';
+            return;
+        }
+
+        // --- 2. Le CONTENU de chaque module coché, avant la moindre écriture.
+        //        Les quinze clés sauvegardées stockent toutes un objet ou un tableau ;
+        //        une chaîne, un nombre ou `null` à leur place ne vient pas du site, et
+        //        l'écrire remplaçait des données exploitables par un type incompatible.
+        const pending = [];   // { key, raw } prêts à écrire
+        const invalid = [];   // libellés des modules refusés
+        BACKUP_MODULES.forEach(mod => {
+            if (!selectedModuleIds.includes(mod.id)) return;
+            const own = [];
+            let bad = false;
+            mod.keys.forEach(key => {
+                const value = importedData.data[key];
+                if (value === undefined) return;   // absent du fichier : rien à restaurer, ce n'est pas une faute
+                if (value === null || typeof value !== 'object') { bad = true; return; }
+                own.push({ key: key, raw: JSON.stringify(value) });
+            });
+            if (bad) invalid.push(dict[mod.labelKey]);
+            else Array.prototype.push.apply(pending, own);
+        });
+
+        // Un seul module fautif annule TOUT l'import : à moitié restauré, le joueur ne
+        // saurait plus quelles données sont les siennes et lesquelles viennent du fichier.
+        if (invalid.length) {
+            showBackupAlert(dict.errInvalidModules.replace('{list}', invalid.join(', ')), false);
+            event.target.value = '';
+            return;
+        }
+        if (!pending.length) {
+            showBackupAlert(dict.errNothingImport, false);
+            event.target.value = '';
+            return;
+        }
+
+        // --- 3. L'écriture, avec retour arrière. Les écritures sont successives : sans
+        //        cela, un quota atteint à mi-import laissait les premiers modules
+        //        remplacés et les suivants intacts, sans aucun moyen de revenir en arrière.
+        const undo = pending.map(item => ({ key: item.key, before: localStorage.getItem(item.key) }));
+        try {
+            pending.forEach(item => localStorage.setItem(item.key, item.raw));
+        } catch (error) {
+            // Rétablissement en DEUX PASSES, et l'ordre est ce qui le rend sûr.
+            // 1) On libère tout ce que l'import a écrit — `removeItem` ne bute jamais
+            //    sur le quota. 2) On réécrit alors les valeurs d'origine, qui disposent
+            //    de toute la place reprise : leur total tenait avant l'import, il tient
+            //    donc encore. Effacer et réécrire clé par clé était plus fragile — un
+            //    échec au milieu laissait la clé vide, donc la donnée perdue.
+            undo.forEach(u => {
+                try { localStorage.removeItem(u.key); } catch (e2) { /* au mieux */ }
+            });
+            undo.forEach(u => {
+                try { if (u.before !== null) localStorage.setItem(u.key, u.before); }
+                catch (e2) { /* au mieux */ }
+            });
+            showBackupAlert(dict.errWriteFailed, false);
+            event.target.value = '';
+            return;
+        }
+
+        // Le succès n'est annoncé qu'ici : après contrôle ET après écriture réussie.
+        showBackupAlert(dict.successImport.replace('{count}', pending.length), true, () => {
+            // Cette fonction se déclenche uniquement QUAND on clique sur OK
+            location.reload();
+        });
+        event.target.value = '';
     };
     reader.readAsText(file);
 }

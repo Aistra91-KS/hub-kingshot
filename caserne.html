@@ -48,14 +48,14 @@
             <h3 style="margin: 0 0 15px 0; font-size: 14px; color: var(--text-muted); text-transform: uppercase;" data-i18n="filterSort">Sort &amp; Filters</h3>
 
             <div class="filter-group" style="margin-bottom: 15px;">
-                <label data-i18n="searchHero" style="display:block; margin-bottom:6px;">Search</label>
+                <label for="hero-search" data-i18n="searchHero" style="display:block; margin-bottom:6px;">Search</label>
                 <input type="text" id="hero-search" class="table-input"
                     data-i18n-placeholder="Hero name…" placeholder="Hero name…"
                    style="width: 100%;">
             </div>
             
             <div class="control-row" style="margin-bottom: 10px;">
-                <label data-i18n="sortBy">Sort by</label>
+                <label for="sort-by" data-i18n="sortBy">Sort by</label>
                 <select id="sort-by" class="table-select" style="width: 100%;">
                     <option value="rarity-desc" data-i18n="sortRarityDesc">Rarity (Descending)</option>
                     <option value="rarity-asc" data-i18n="sortRarityAsc">Rarity (Ascending)</option>
@@ -95,7 +95,7 @@
             </div>
 
             <div class="control-row" style="margin-bottom: 10px;">
-                <label data-i18n="filterType">Type</label>
+                <label for="filter-type" data-i18n="filterType">Type</label>
                 <select id="filter-type" class="table-select" style="width: 120px;">
                     <option value="all" data-i18n="typeAll">All types</option>
                     <option value="Infantry" data-i18n="typeInf">Infantry 🛡️</option>
@@ -105,7 +105,7 @@
             </div>
 
             <div class="control-row">
-                <label data-i18n="filterRarity">Rarity</label>
+                <label for="filter-rarity" data-i18n="filterRarity">Rarity</label>
                 <select id="filter-rarity" class="table-select" style="width: 120px;">
                     <option value="all" data-i18n="rarityAll">All</option>
                     <option value="legendary" data-i18n="rarityLeg">Legendary 🟡</option>
@@ -145,16 +145,16 @@
                 
                 <div data-mtab="level" class="progression-section" style="margin-bottom: 25px;">
                     <div class="control-row" style="justify-content: space-between; margin-bottom: 15px;">
-                        <label style="font-weight: bold;" data-i18n="modalLvl">Hero Level</label>
+                        <label for="modal-level" style="font-weight: bold;" data-i18n="modalLvl">Hero Level</label>
                         <input type="number" id="modal-level" min="1" max="80" value="1" class="table-input" style="width: 80px; text-align: center;">
                     </div>
                     
                     <div class="stars-section" style="background: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
                         <div id="modal-stars-display" style="font-size: 28px; letter-spacing: 5px; color: #f5b840; margin-bottom: 10px; text-shadow: 0 0 5px rgba(245, 184, 64, 0.5);">
                             </div>
-                        <input type="range" id="modal-shards" min="0" max="30" value="0" style="width: 100%; cursor: pointer;">
+                        <input type="range" id="modal-shards" aria-labelledby="lbl-modal-shards" min="0" max="30" value="0" style="width: 100%; cursor: pointer;">
                         <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">
-                            <span data-i18n="modalShards">Star Shards :</span> <span id="modal-shards-count" style="color: var(--text-light); font-weight: bold;">0</span>/30
+                            <span id="lbl-modal-shards" data-i18n="modalShards">Star Shards :</span> <span id="modal-shards-count" style="color: var(--text-light); font-weight: bold;">0</span>/30
                         </div>
                     </div>
                 </div>

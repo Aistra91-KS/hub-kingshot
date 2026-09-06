@@ -17,3 +17,6 @@ exclude:
   - CLAUDE.md    # documents de travail du dépôt : publics sur GitHub, mais ils
   - MAP.md       # n'ont rien à faire sous une adresse du site
   - TECH_DEBT_AUDIT.md
+  - node_modules # dépendances npm installées ponctuellement pour les tests navigateur.
+                 # Cette liste REMPLAÇANT les défauts de Jekyll (qui l'excluent
+                 # normalement), sans cette ligne le dossier partirait en ligne.

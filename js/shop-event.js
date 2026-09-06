@@ -136,7 +136,10 @@ function seEventKey(){ return SE_DATA && SE_DATA._meta && SE_DATA._meta.event; }
 function seDays(){ return Math.max(1, Number(SE_DATA._meta.days)||1); }
 function seSave(){
   SE_PLANS[seEventKey()] = SE_PLAN;
-  localStorage.setItem(STORAGE_KEYS.shopcalcEventPlans, JSON.stringify(SE_PLANS));
+  // Même filet que les autres écritures : le plan d'achat vaut mieux à l'écran
+  // que perdu avec la page. `window.ktWarnUnsaved` est testé, jamais appelé nu.
+  try { localStorage.setItem(STORAGE_KEYS.shopcalcEventPlans, JSON.stringify(SE_PLANS)); }
+  catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 function seName(o){ const n=o&&o.name; if(!n) return ''; return n[scLang()]||n.EN||n.FR||''; }
 // Libellé COURT d'un pack, pour la colonne « Provenance » (le nom complet y déborderait).
@@ -802,18 +805,47 @@ window.ShopEvent = {
   compute: (upTo) => (SE_DATA && SE_PLAN) ? seCompute(upTo) : null
 };
 
+// Message de panne du module événement. Volontairement sobre : il dit ce qui s'est
+// passé et ce qu'on peut faire, sans promettre que les saisies sont conservées —
+// une promesse que ce module n'est pas en position de tenir.
+function seRenderPanne(host){
+  const fr = (typeof scLang==='function' ? scLang() : 'EN') === 'FR';
+  host.innerHTML =
+    '<div role="alert" style="margin:16px 0;padding:14px 16px;border:1px solid var(--border);'
+    + 'border-left:4px solid #b45309;border-radius:8px">'
+    + '<b>' + (fr ? 'Données de l\u2019événement indisponibles' : 'Event data unavailable') + '</b>'
+    + '<div style="margin-top:6px;color:var(--text-muted)">'
+    + (fr ? 'Le fichier n\u2019a pas pu être chargé, le plan ne peut donc pas être calculé.'
+          : 'The file could not be loaded, so the plan cannot be calculated.')
+    + '</div></div>';
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = fr ? 'Réessayer' : 'Retry';
+  b.className = 'btn-modern btn-modern-secondary';
+  b.style.marginTop = '10px';
+  b.onclick = () => location.reload();
+  host.firstChild.appendChild(b);
+}
+
 // ---------- init ----------
 (async function(){
   const slug = window.SHOP_SLUG;
   const host = document.getElementById('sp-event');
   if(!slug || !host) return;
 
-  // Pas de fichier d'événement pour cette boutique -> le module reste inerte.
-  let data = null;
+  // Deux situations que le bloc vide confondait, et c'est tout l'enjeu du constat :
+  //  - 404 : cette boutique n'a PAS d'événement. Cas normal, le module reste inerte.
+  //  - 503, réseau coupé, JSON tronqué : c'est une PANNE. Le joueur doit la voir,
+  //    sinon il lit « rien ici » là où il devrait lire « revenez dans un instant ».
+  // Le `catch` était vide : la console seule ne constitue pas un retour utilisateur.
+  let data = null, panne = false;
   try{
     const r = await fetch('data/events/'+slug+'.json');
     if(r.ok) data = await r.json();
-  }catch(e){}
+    else if(r.status !== 404) panne = true;
+  }catch(e){ panne = true; }
+
+  if(panne){ seRenderPanne(host); return; }
   if(!data || !data._meta) return;
   SE_DATA = data;
 

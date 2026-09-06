@@ -87,12 +87,12 @@
 
                 <div class="pet-levelbox">
                     <div class="pl-top">
-                        <span class="pl-label" data-i18n="yourLevel">Your level</span>
+                        <span class="pl-label" id="lbl-petLevel" data-i18n="yourLevel">Your level</span>
                         <span class="pl-tier" id="petTier"></span>
                     </div>
                     <div class="pl-row">
                         <button type="button" class="pl-step" id="lvlMinus" aria-label="−">−</button>
-                        <input type="number" id="petLevelInput" class="pl-input" min="1" step="1" inputmode="numeric">
+                        <input type="number" id="petLevelInput" class="pl-input" aria-labelledby="lbl-petLevel" min="1" step="1" inputmode="numeric">
                         <button type="button" class="pl-step" id="lvlPlus" aria-label="+">+</button>
                         <span class="pl-max" id="petLevelMax"></span>
                     </div>

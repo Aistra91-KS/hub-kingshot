@@ -270,7 +270,7 @@ function saveFilters() {
     const filterUnlocked = unlockedCheckbox ? unlockedCheckbox.checked : false;
 
     const filters = { sortBy, filterType, filterRarity, checkedGens, filterUnlocked };
-    localStorage.setItem(STORAGE_KEYS.caserneFilters, JSON.stringify(filters));
+    try { localStorage.setItem(STORAGE_KEYS.caserneFilters, JSON.stringify(filters)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 function handleFilterChange() {
@@ -723,7 +723,7 @@ function saveHeroSettings() {
      };
     }
     
-    localStorage.setItem(STORAGE_KEYS.caserneHeroes, JSON.stringify(userHeroes));
+    try { localStorage.setItem(STORAGE_KEYS.caserneHeroes, JSON.stringify(userHeroes)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
     closeModal();
     renderHeroes(); 
 }

@@ -434,7 +434,7 @@ function toggleHeaderTheme() {
   const current = document.documentElement.getAttribute('data-theme');
   const target = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', target);
-  localStorage.setItem('hub_theme', target);
+  try { localStorage.setItem('hub_theme', target); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
   updateHeaderThemeIcon(target);
 }
 

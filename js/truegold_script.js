@@ -370,9 +370,9 @@ function renderBuildings() {
 
         let tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="bldg-name"><input type="checkbox" class="bldg-toggle" title="${tx.inclSuggest}" style="vertical-align:middle; margin-right:6px;" ${b.enabled !== false ? 'checked' : ''} onchange="toggleBuildingEnabled(${index}, this.checked)"><span class="bldg-icon">${bldgIcon(nom)}</span> ${getLocName(nom)}</td>
-            <td><select class="table-select" onchange="updateBuildingLvl(${index}, this.value, 'current')">${curOptions}</select></td>
-            <td><select class="table-select" onchange="updateBuildingLvl(${index}, this.value, 'target')">${tgtOptions}</select></td>
+            <td class="bldg-name"><input type="checkbox" class="bldg-toggle" aria-label="${getLocName(nom)} — ${tx.inclSuggest}" title="${tx.inclSuggest}" style="vertical-align:middle; margin-right:6px;" ${b.enabled !== false ? 'checked' : ''} onchange="toggleBuildingEnabled(${index}, this.checked)"><span class="bldg-icon">${bldgIcon(nom)}</span> ${getLocName(nom)}</td>
+            <td><select class="table-select" aria-label="${getLocName(nom)} — ${tx.curLvl}" onchange="updateBuildingLvl(${index}, this.value, 'current')">${curOptions}</select></td>
+            <td><select class="table-select" aria-label="${getLocName(nom)} — ${tx.targetLvl}" onchange="updateBuildingLvl(${index}, this.value, 'target')">${tgtOptions}</select></td>
             <td id="tg-cost-${index}">0</td>
             <td id="ttg-cost-${index}">0</td>
             <td id="time-cost-${index}" style="font-size:13px;">0</td>
@@ -604,7 +604,7 @@ function saveData() {
         panReduction: document.getElementById('panReduction').value,
         buildings: buildingsState
     };
-    localStorage.setItem(STORAGE_KEYS.truegold, JSON.stringify(data));
+    try { localStorage.setItem(STORAGE_KEYS.truegold, JSON.stringify(data)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 function loadData() {

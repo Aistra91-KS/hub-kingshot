@@ -474,7 +474,7 @@ function stSave() {
         if (String(ST.state.tokens[i]) !== String(def[i])) delta[i] = ST.state.tokens[i];
     }
     const out = Object.assign({}, ST.state, { tokens: delta });
-    try { localStorage.setItem(stKey(), JSON.stringify(out)); } catch (e) {}
+    try { localStorage.setItem(stKey(), JSON.stringify(out)); } catch (e) { if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
 }
 
 /* Amulettes du plan : shop-event.js les a déjà totalisées. Elles arrivent en

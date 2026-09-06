@@ -710,6 +710,12 @@ tbody tr:hover {
 
 .tabs {
     display: flex;
+    /* Sans retour à la ligne, les 4 onglets tenaient sur une seule rangée quoi qu'il
+       arrive : à 390 px le document atteignait 432 px de large, la page glissait
+       latéralement et le dernier onglet sortait de l'écran. Ils passent désormais à
+       la ligne — préféré à un défilement horizontal, qui cacherait des onglets
+       derrière un geste que rien n'annonce. */
+    flex-wrap: wrap;
     background: var(--table-header);
     padding: 10px 10px 0 10px;
     gap: 5px;
@@ -718,6 +724,9 @@ tbody tr:hover {
 
 .tab {
     padding: 10px 20px;
+    /* Autorise l'onglet à se réduire au lieu d'imposer sa largeur au conteneur :
+       un libellé long (« Ordre de recherche optimal ») ne doit pas élargir la page. */
+    min-width: 0;
     background: var(--input-bg);
     border: 1px solid var(--border);
     border-bottom: none;

@@ -30,10 +30,10 @@
       if (typeof raw[id] === "number"){ raw[id] = { lvl: raw[id], adv: {} }; changed = true; }
       else if (raw[id] && typeof raw[id] === "object"){ if (!raw[id].adv){ raw[id].adv = {}; changed = true; } }
     }
-    if (changed) try { localStorage.setItem(LS_KEY, JSON.stringify(raw)); } catch(e){}
+    if (changed) try { localStorage.setItem(LS_KEY, JSON.stringify(raw)); } catch(e){ if (window.ktWarnUnsaved) window.ktWarnUnsaved(); }
     return raw;
   }
-  function saveData(){ try { localStorage.setItem(LS_KEY, JSON.stringify(DATA)); } catch(e){} }
+  function saveData(){ try { localStorage.setItem(LS_KEY, JSON.stringify(DATA)); } catch(e){ if (window.ktWarnUnsaved) window.ktWarnUnsaved(); } }
 
   const i18n = {
     FR:{ collection:"Collection", genWord:"Génération", yourLevel:"Ton niveau", levelWord:"Niveau",
